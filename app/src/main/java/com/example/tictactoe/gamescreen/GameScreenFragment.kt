@@ -1,6 +1,7 @@
 package com.example.tictactoe.gamescreen
 
 import android.app.Activity
+import android.content.SharedPreferences
 import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
@@ -55,7 +56,7 @@ class GameScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // init the Controller
-        controller = Controller(this, settings)
+        controller = Controller(this, settings, this.context!!)
         // applying data bindings
         binding.controller = controller
 

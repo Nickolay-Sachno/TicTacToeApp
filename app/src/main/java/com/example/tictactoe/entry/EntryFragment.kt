@@ -19,11 +19,13 @@ class EntryFragment : Fragment() {
 
     private lateinit var binding:FragmentEntryBinding
     lateinit var settingsData: Settings
+    lateinit var controller: Controller
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        println("EntryFragment: onCreateView")
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_entry, container, false)
         return binding.root
@@ -34,6 +36,7 @@ class EntryFragment : Fragment() {
 
         // init default settings
         settingsData = Settings()
+
 
         // setting up clickable buttons
         setClickableButtons()
@@ -66,5 +69,31 @@ class EntryFragment : Fragment() {
                 v.findNavController().navigate(R.id.action_entryFragment_to_settingsFragment, bundle)
             }
         }
+    }
+
+    /** Temp checks */
+    override fun onStart() {
+        super.onStart()
+        println("EntryFragment: onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        println("EntryFragment: onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        println("EntryFragment: onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        println("EntryFragment: onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        println("EntryFragment: OnDestroy")
     }
 }

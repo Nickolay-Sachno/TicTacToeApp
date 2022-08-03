@@ -9,7 +9,7 @@ import java.io.Serializable
 
 data class Settings(
     // User visible
-    val difficulty : AgentDifficulties = AgentDifficulties.MEDIUM,
+    var difficulty : AgentDifficulties = AgentDifficulties.MEDIUM,
 
 
     // User invisible

@@ -2,25 +2,32 @@ package com.example.tictactoe
 
 import Cell
 import GameState
-import Player
-import android.widget.Toast
-import android.widget.Toast.LENGTH_LONG
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
 import com.example.tictactoe.gamescreen.GameScreenFragment
 import com.example.tictactoe.settings.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.*
-import java.util.logging.Handler
-import kotlin.concurrent.timerTask
 
 class Controller(
     private val gameScreenFragment : GameScreenFragment,
-    val settings: Settings
+    val settings: Settings,
+    val context: Context
 ) : IController {
 
     override var gameState : GameState = settings.gameState
+    private var sharedPref : SharedPreferences = context.getSharedPreferences("database", MODE_PRIVATE)
+
+    fun setDiffMode(diff :String){
+        sharedPref.edit().putString("diff_key", diff).commit()
+    }
+
+    fun getDiffMode() : String? {
+        return sharedPref.getString("diff_key", "easy")
+    }
 
     override fun onGridCellSelected(row: Int, col: Int){
         // if the cell already been visited

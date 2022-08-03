@@ -7,4 +7,6 @@
     <string name="settings">Settings</string>
     <string name="TicTacToe">Tic Tac Toe</string>
     <string name="turn_str">Turn:</string>
+    <string name="diff_settings_str">Smart AI</string>
+    <string name="settings_switch_diff">AI</string>
 </resources>
