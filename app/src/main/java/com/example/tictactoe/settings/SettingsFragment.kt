@@ -8,10 +8,19 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.example.tictactoe.R
 import com.example.tictactoe.databinding.FragmentMovesTrackingBinding
+import com.example.tictactoe.databinding.FragmentSettingsBinding
 
 
 class SettingsFragment : Fragment() {
-    private lateinit var binding: FragmentMovesTrackingBinding
+    private lateinit var binding: FragmentSettingsBinding
+    lateinit var settings : Settings
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.getSerializable("settings").let { settingsId ->
+            settings = settingsId as Settings
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

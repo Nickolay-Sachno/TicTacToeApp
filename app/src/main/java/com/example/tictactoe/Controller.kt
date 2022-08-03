@@ -2,49 +2,85 @@ package com.example.tictactoe
 
 import Cell
 import GameState
-import Grid
 import Player
-import User
-import android.util.Log
+import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import com.example.tictactoe.gamescreen.GameScreenFragment
 import com.example.tictactoe.settings.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.*
+import java.util.logging.Handler
+import kotlin.concurrent.timerTask
 
 class Controller(
-    val gameScreenFragment : GameScreenFragment,
+    private val gameScreenFragment : GameScreenFragment,
     val settings: Settings
 ) : IController {
 
-    override lateinit var gameState : GameState
-
-    init {
-        gameState = settings.gameState
-    }
-
-    override fun play(gameType: String) {
-        when(gameType){
-            "playerVsPlayer" -> playPlayerVsPlayer()
-            "playerVsAi" -> playPlayerVsAi()
-        }
-    }
-
-    override fun getPlayer(): Player {
-        TODO("Not yet implemented")
-    }
-
-    override fun setPlayer(settingsFragment: SettingsFragment?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getCellTypeImg(): Int {
-        TODO("Not yet implemented")
-    }
+    override var gameState : GameState = settings.gameState
 
     override fun onGridCellSelected(row: Int, col: Int){
         // if the cell already been visited
         if(gameState.getCell(row,col).content != CellType.EMPTY) return
 
-        val currentTurnCellType = gameState.currentTurn().cellType
-        val imgId : Int = when(currentTurnCellType){
+        when(settings.typeGame){
+            "playerVsPlayer" -> playUser(row,col)
+            "playerVsAi" -> {
+                playUser(row,col)
+                CoroutineScope(Main).launch {
+                    delay(1000)
+                    playAgent()
+                }
+            }
+        }
+
+    }
+
+    override fun checkForWinner() {
+        when{
+            // first player wins
+            gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) -> {
+                gameScreenFragment.navigateToEntryFragment("First player wins! ")
+            }
+            // second player wins
+            gameState.isWinState(Cell(content = settings.secondPlayer.player.cellType)) -> {
+                gameScreenFragment.navigateToEntryFragment("Second player wins! ")
+            }
+            // standoff
+            gameState.isStandOff() -> {
+                gameScreenFragment.navigateToEntryFragment("It's a standoff ")
+            }
+        }
+    }
+
+    override fun playAgent() {
+
+        val currentPlayer = gameState.getNextPlayer()
+        val imgId = CellTypeImg.CIRCLE_BLACK.id
+        val (row, col) = currentPlayer.getNextMove(gameState)
+        gameState.setCell(Cell(
+            row = row,
+            col = col,
+            content = currentPlayer.cellType
+        ))
+
+        gameState.listOfMoves.add(Pair(row,col))
+        gameState = gameState.updateGameState()
+
+        // set turn img
+        gameScreenFragment.setCellImg(-1,-1,CellTypeImg.CROSS_BLACK.id)
+        // set grid cell img
+        gameScreenFragment.setCellImg(row, col, imgId)
+
+        checkForWinner()
+    }
+
+    override fun playUser(row: Int, col: Int) {
+
+        val imgId : Int = when(gameState.currentTurn().cellType){
             CellType.CROSS -> {
                 gameState.setCell(Cell(
                     row = row,
@@ -66,84 +102,10 @@ class Controller(
             else -> {0}
         }
         gameState.getNextPlayer()
-        gameScreenFragment.setCellImg(row, col, imgId)
-    }
-
-    private fun getCurrentPlayerAngMakeMove(gameState: GameState)  : Player{
-        val currentPlayer = gameState.getNextPlayer()
-        val (row, col) = currentPlayer.getNextMove(gameState)
-        gameState.setCell(Cell(
-            row = row,
-            col = col,
-            content = currentPlayer.cellType
-        ))
         gameState.listOfMoves.add(Pair(row,col))
-        return currentPlayer
+        gameState = gameState.updateGameState()
+        gameScreenFragment.setCellImg(row, col, imgId)
+
+        checkForWinner()
     }
-
-    private fun playPlayerVsPlayer(){
-        TODO("Implementation")
-    }
-
-    private fun playPlayerVsAi(){
-        gameState = GameState(
-            grid = Grid(3),
-            listOfPlayers = mutableListOf(
-                User(
-                    cellType = CellType.CROSS
-                ) as Player,
-                Agent.createAgent(
-                    cellType = CellType.CIRCLE,
-                    diff = AgentDifficulties.MEDIUM
-                ) as Player
-            ),
-            notVisitedCell = Cell(),
-            listOfMoves = mutableListOf()
-        )
-
-        play(gameState)
-    }
-
-
-    private fun createGameState(gameType:String){
-        when(gameType){
-            "playerVsAi" -> gameState = GameState(
-                grid = Grid(3),
-                listOfPlayers = mutableListOf(
-                    User(
-                        cellType = CellType.CROSS
-                    ) as Player,
-                    Agent.createAgent(
-                        cellType = CellType.CIRCLE,
-                        diff = AgentDifficulties.MEDIUM
-                    ) as Player
-                ),
-                notVisitedCell = Cell(),
-                listOfMoves = mutableListOf()
-            )
-        }
-    }
-
-    private fun play(gameState: GameState) {
-        Display.toConsole("Welcome to TicTacToe !")
-        var currentGameState = gameState.deepCopy()
-        while (true) {
-            Display.toConsole("$currentGameState")
-            val currentPlayer = getCurrentPlayerAngMakeMove(currentGameState)
-            val currentPlayerCellType = currentPlayer.cellType
-            if (currentGameState.isWinState(Cell(content = currentPlayerCellType))
-                || currentGameState.isStandOff()){
-                when{
-                    currentGameState.isWinState(Cell(content = currentPlayerCellType)) ->
-                        Display.toConsole("Player $currentPlayerCellType WINS!!!!!")
-                    currentGameState.isStandOff() ->
-                        Display.toConsole("It's a standoff -_-")
-                }
-                Display.toConsole("$currentGameState")
-                return
-            }
-            currentGameState = currentGameState.updateGameState()
-        } // end game loop
-    }
-
 }

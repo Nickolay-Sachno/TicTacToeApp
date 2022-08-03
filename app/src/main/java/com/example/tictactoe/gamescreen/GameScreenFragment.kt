@@ -8,19 +8,40 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.ViewModel
+import androidx.navigation.fragment.findNavController
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.databinding.FragmentGameScreenBinding
 import com.example.tictactoe.settings.CellTypeImg
 import com.example.tictactoe.settings.Settings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.concurrent.schedule
 
 
 class GameScreenFragment : Fragment() {
     lateinit var binding: FragmentGameScreenBinding
 
-    lateinit var controller : Controller
+    private lateinit var controller : Controller
+    lateinit var settings : Settings
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // get the settings obj from the Bundle
+        arguments?.getSerializable("settings").let { settingsId ->
+            settings = settingsId as Settings
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -34,9 +55,10 @@ class GameScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // init the Controller
-        controller = Controller(this, Settings())
+        controller = Controller(this, settings)
         // applying data bindings
         binding.controller = controller
+
 
     }
 
@@ -52,6 +74,14 @@ class GameScreenFragment : Fragment() {
             "2,1" -> binding.imageView21.setImageResource(imgId)
             "2,2" -> binding.imageView22.setImageResource(imgId)
             else -> binding.currentPlayerImg.setImageResource(imgId)
+        }
+    }
+
+    fun navigateToEntryFragment(text:String) {
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+        CoroutineScope(Main).launch {
+            delay(2000)
+            findNavController().navigate(R.id.action_gameScreenFragment_to_entryFragment)
         }
     }
 }

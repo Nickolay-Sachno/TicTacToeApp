@@ -7,5 +7,6 @@ data class UserData(
     override var player: Player = User(
         cellType = CellType.CROSS
     ),
-    override var cellTypeImg: CellTypeImg = CellTypeImg.CIRCLE_BLACK
-    ) : PlayerData
+    override var cellTypeImg: CellTypeImg = CellTypeImg.CROSS_BLACK,
+    override var winCellTypeImg: CellTypeImg = CellTypeImg.CROSS_RED
+) : PlayerData

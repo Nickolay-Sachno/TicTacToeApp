@@ -10,9 +10,8 @@ interface IController {
 
     var gameState : GameState
 
-    fun play(gameType : String)
-    fun getPlayer() : Player
-    fun setPlayer(settingsFragment: SettingsFragment? = null)
-    fun getCellTypeImg() : Int
     fun onGridCellSelected(row : Int, col : Int)
+    fun playUser(row: Int, col: Int)
+    fun playAgent()
+    fun checkForWinner()
 }

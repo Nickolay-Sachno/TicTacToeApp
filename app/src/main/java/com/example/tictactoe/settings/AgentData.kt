@@ -8,6 +8,8 @@ data class AgentData (
         cellType = CellType.CIRCLE,
         diff = AgentDifficulties.MEDIUM
     ) as Player,
-    override var cellTypeImg: CellTypeImg = CellTypeImg.CIRCLE_BLACK
-    ) : PlayerData
+    override var cellTypeImg: CellTypeImg = CellTypeImg.CIRCLE_BLACK,
+    override var winCellTypeImg: CellTypeImg = CellTypeImg.CIRCLE_RED
+
+) : PlayerData
 

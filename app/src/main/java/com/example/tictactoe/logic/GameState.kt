@@ -47,7 +47,7 @@ class GameState(
         return isHorizontalWin(cell) || isVerticalWin(cell) || isDiagonalWin(cell)
     }
 
-    private fun isDiagonalWin(cell: Cell): Boolean {
+    fun isDiagonalWin(cell: Cell): Boolean {
         val n = getGridSize()
         var seq = 0
 
@@ -79,12 +79,12 @@ class GameState(
         return false
     }
 
-    private fun isVerticalWin(cell: Cell): Boolean {
+    fun isVerticalWin(cell: Cell): Boolean {
         val n = getGridSize()
         var seq = 0
         for(i in 0 until n){
             for(j in 0 until n){
-                if(getCell(i,j).content == cell.content)
+                if(getCell(j,i).content == cell.content)
                     seq ++
             }
             if(seq == n) {
@@ -97,7 +97,7 @@ class GameState(
         return false
     }
 
-    private fun isHorizontalWin(cell: Cell): Boolean {
+    fun isHorizontalWin(cell: Cell): Boolean {
         return grid.matrix.any { row ->
             row.all { it ->  it.content == cell.content }
         }
