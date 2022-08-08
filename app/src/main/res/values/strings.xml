@@ -9,4 +9,6 @@
     <string name="turn_str">Turn:</string>
     <string name="diff_settings_str">Smart AI</string>
     <string name="settings_switch_diff">AI</string>
+    <string name="btn_text_moves">Moves</string>
+    <string name="btn_text_board">Board</string>
 </resources>

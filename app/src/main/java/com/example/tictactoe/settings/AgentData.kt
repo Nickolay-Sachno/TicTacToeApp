@@ -9,7 +9,8 @@ data class AgentData (
         diff = AgentDifficulties.MEDIUM
     ) as Player,
     override var cellTypeImg: CellTypeImg = CellTypeImg.CIRCLE_BLACK,
-    override var winCellTypeImg: CellTypeImg = CellTypeImg.CIRCLE_RED
+    override var winCellTypeImg: CellTypeImg = CellTypeImg.CIRCLE_RED,
+    override var listOfWinMoves: MutableList<Pair<Int, Int>> = mutableListOf()
 
 ) : PlayerData
 

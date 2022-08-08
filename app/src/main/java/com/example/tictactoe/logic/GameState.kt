@@ -118,4 +118,12 @@ class GameState(
         newGameState.mPrevGameState = this
         return newGameState
     }
+
+    fun clearGrid() {
+        grid.matrix.forEach { row ->
+            row.forEach { cell ->
+                cell.clear()
+            }
+        }
+    }
 }

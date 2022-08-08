@@ -11,15 +11,15 @@ import androidx.navigation.findNavController
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.databinding.FragmentEntryBinding
+import com.example.tictactoe.enum.GameType
+import com.example.tictactoe.gamescreen.GameScreenFragmentDirections
 import com.example.tictactoe.settings.CellTypeImg
 import com.example.tictactoe.settings.Settings
 import com.example.tictactoe.settings.UserData
 
-class EntryFragment : Fragment() {
+class EntryFragment : Fragment(), IEntryView {
 
     private lateinit var binding:FragmentEntryBinding
-    lateinit var settingsData: Settings
-    lateinit var controller: Controller
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,45 +28,28 @@ class EntryFragment : Fragment() {
         println("EntryFragment: onCreateView")
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_entry, container, false)
+        // update the current fragment in the controller
+        Controller.setFragment(this)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // init default settings
-        settingsData = Settings()
-
-
         // setting up clickable buttons
         setClickableButtons()
     }
 
     private fun setClickableButtons(){
-        val bundle = Bundle()
+        val settingsData = Controller.settings
         binding.apply {
-            //TODO: Inform the controller
             playerVsPlayer.setOnClickListener{v : View ->
-                // change the type game
-                settingsData.apply {
-                    typeGame = "playerVsPlayer"
-                    secondPlayer = UserData(
-                        player = User(cellType = CellType.CIRCLE),
-                        cellTypeImg = CellTypeImg.CIRCLE_BLACK,
-                        winCellTypeImg = CellTypeImg.CIRCLE_RED
-                    )
-                    gameState.listOfPlayers[1] = secondPlayer.player
-                }
-                bundle.putSerializable("settings", settingsData)
-                v.findNavController().navigate(R.id.action_entryFragment_to_gameScreenFragment, bundle)
+                v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToGameScreenFragment(GameType.PLAYER_VS_PLAYER.name))
             }
             playerVsAi.setOnClickListener {v : View ->
-                bundle.putSerializable("settings", settingsData)
-                v.findNavController().navigate(R.id.action_entryFragment_to_gameScreenFragment, bundle)
+                v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToGameScreenFragment(GameType.PLAYER_VS_AI.name))
             }
             settings.setOnClickListener {v : View ->
-                bundle.putSerializable("settings", settingsData)
-                v.findNavController().navigate(R.id.action_entryFragment_to_settingsFragment, bundle)
+                v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToSettingsFragment())
             }
         }
     }

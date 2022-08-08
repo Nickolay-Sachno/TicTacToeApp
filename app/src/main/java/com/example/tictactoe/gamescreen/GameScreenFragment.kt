@@ -1,46 +1,32 @@
 package com.example.tictactoe.gamescreen
 
-import android.app.Activity
-import android.content.SharedPreferences
-import android.opengl.Visibility
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import android.widget.Button
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.ViewModel
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.databinding.FragmentGameScreenBinding
-import com.example.tictactoe.settings.CellTypeImg
+import com.example.tictactoe.movestracking.MovesTrackingFragmentDirections
 import com.example.tictactoe.settings.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.*
-import kotlin.concurrent.schedule
 
 
-class GameScreenFragment : Fragment() {
+class GameScreenFragment : Fragment(), IGameScreenView {
     lateinit var binding: FragmentGameScreenBinding
-
-    private lateinit var controller : Controller
     lateinit var settings : Settings
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // get the settings obj from the Bundle
-        arguments?.getSerializable("settings").let { settingsId ->
-            settings = settingsId as Settings
-        }
     }
 
     override fun onCreateView(
@@ -49,21 +35,32 @@ class GameScreenFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_game_screen, container, false)
+        Controller.setFragment(this)
+        var args = GameScreenFragmentArgs.fromBundle(arguments!!)
+        Controller.setGameType(args.gameType)
+        Controller.createGameBasedOnTypeGame()
+
+        //binding.gridLayout.visibility = View.INVISIBLE
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.fragment = this
 
-        // init the Controller
-        controller = Controller(this, settings, this.context!!)
-        // applying data bindings
-        binding.controller = controller
-
-
+        binding.changeViewBtn.setOnClickListener{ v: View ->
+            when(binding.changeViewBtn.text){
+                "Moves" -> changeToMoves()
+                "Board" -> changeToBoard()
+            }
+        }
     }
 
-    fun setCellImg(row: Int, col: Int, imgId: Int) {
+    fun onGridSelected(row: Int, col: Int){
+        Controller.onGridCellSelected(row, col)
+    }
+
+    override fun setCellImg(row: Int, col: Int, imgId: Int) {
         when("$row,$col"){
             "0,0" -> binding.imageView00.setImageResource(imgId)
             "0,1" -> binding.imageView01.setImageResource(imgId)
@@ -78,11 +75,61 @@ class GameScreenFragment : Fragment() {
         }
     }
 
-    fun navigateToEntryFragment(text:String) {
+    override fun navigateToStart(text:String) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
         CoroutineScope(Main).launch {
             delay(2000)
-            findNavController().navigate(R.id.action_gameScreenFragment_to_entryFragment)
+            try{
+                findNavController().navigate(R.id.action_gameScreenFragment_to_entryFragment)
+            } catch(e : Exception ){
+                return@launch
+            }
         }
+    }
+
+    override fun changeToBoard() {
+        println("Change to Board")
+        binding.apply {
+            recycleView.visibility = View.INVISIBLE
+            gridLayout.visibility = View.VISIBLE
+            changeViewBtn.text = "Moves"
+            changeBtnImageView.setImageResource(R.drawable.ic_menu_history_image)
+        }
+    }
+
+    override fun changeToMoves() {
+        println("Change to Moves")
+        binding.apply {
+            recycleView.visibility = View.VISIBLE
+            gridLayout.visibility = View.INVISIBLE
+            changeViewBtn.text = "Board"
+            changeBtnImageView.setImageResource(R.drawable.ic_dialog_dialer)
+        }
+    }
+
+    /** Temp checks */
+    override fun onStart() {
+        super.onStart()
+        println("GameScreenFragment: onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        println("GameScreenFragment: onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        println("GameScreenFragment: onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        println("GameScreenFragment: onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        println("GameScreenFragment: OnDestroy")
     }
 }

@@ -5,6 +5,7 @@ import Cell
 import GameState
 import Grid
 import Player
+import com.example.tictactoe.enum.GameType
 import java.io.Serializable
 
 data class Settings(
@@ -13,10 +14,10 @@ data class Settings(
 
 
     // User invisible
-    var typeGame : String = "playerVsAi",
+    var typeGame: GameType = GameType.PLAYER_VS_AI,
     var firstPlayer : PlayerData = UserData(),
     var secondPlayer : PlayerData = AgentData(),
-    val gameState: GameState = GameState(
+    var gameState: GameState = GameState(
         grid = Grid(3),
         listOfPlayers = mutableListOf(firstPlayer.player, secondPlayer.player),
         notVisitedCell = Cell(),

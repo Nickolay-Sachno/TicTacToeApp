@@ -13,12 +13,14 @@
             android:id="@+id/action_entryFragment_to_gameScreenFragment"
             app:destination="@id/gameScreenFragment"
             app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left" />
+            app:exitAnim="@anim/slide_out_left"
+            app:popExitAnim="@anim/slide_out_left"/>
         <action
             android:id="@+id/action_entryFragment_to_settingsFragment"
             app:destination="@id/settingsFragment"
             app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_left" />
+            app:exitAnim="@anim/slide_out_left"
+            app:popExitAnim="@anim/slide_out_left" />
     </fragment>
     <fragment
         android:id="@+id/gameScreenFragment"
@@ -32,6 +34,9 @@
             android:id="@+id/action_gameScreenFragment_to_entryFragment"
             app:destination="@id/entryFragment"
             app:enterAnim="@android:anim/slide_in_left" />
+        <argument
+            android:name="gameType"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/movesTrackingFragment"
