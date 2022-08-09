@@ -49,37 +49,6 @@ class SettingsFragment : Fragment(), ISettingsView {
 
     }
 
-    /** Temp checks */
-    override fun onStart() {
-        super.onStart()
-        println("SettingsFragment: onStart")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        println("SettingsFragment: onResume")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        println("SettingsFragment: onPause")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        println("SettingsFragment: onStop")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        println("SettingsFragment: OnDestroy")
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        println("SettingsFragment: onDetach")
-    }
-
     override fun getDiff(): AgentDifficulties {
         return Controller.settings.difficulty
     }

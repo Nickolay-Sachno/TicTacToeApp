@@ -103,30 +103,4 @@ class GameScreenFragment : Fragment(), IGameScreenView {
             imageView22.setImageResource(Controller.settings.gridLayoutImgId[2][2])
         }
     }
-
-    /** Temp checks */
-    override fun onStart() {
-        super.onStart()
-        println("GameScreenFragment: onStart")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        println("GameScreenFragment: onResume")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        println("GameScreenFragment: onPause")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        println("GameScreenFragment: onStop")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        println("GameScreenFragment: OnDestroy")
-    }
 }

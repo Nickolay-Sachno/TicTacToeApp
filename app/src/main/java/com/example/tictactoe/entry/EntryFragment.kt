@@ -39,7 +39,6 @@ class EntryFragment : Fragment(), IEntryView {
     private fun setClickableButtons(){
         binding.apply {
             playerVsPlayer.setOnClickListener{v : View ->
-                //v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToGameScreenFragment(GameType.PLAYER_VS_PLAYER.name))
                 Controller.settings.typeGame = GameType.PLAYER_VS_PLAYER
                 Controller.createGameBasedOnTypeGame()
                 v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
@@ -47,38 +46,11 @@ class EntryFragment : Fragment(), IEntryView {
             playerVsAi.setOnClickListener {v : View ->
                 Controller.settings.typeGame = GameType.PLAYER_VS_AI
                 Controller.createGameBasedOnTypeGame()
-                //v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToGameScreenFragment(GameType.PLAYER_VS_AI.name))
                 v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
             }
             settings.setOnClickListener {v : View ->
                 v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToSettingsFragment())
             }
         }
-    }
-
-    /** Temp checks */
-    override fun onStart() {
-        super.onStart()
-        println("EntryFragment: onStart")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        println("EntryFragment: onResume")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        println("EntryFragment: onPause")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        println("EntryFragment: onStop")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        println("EntryFragment: OnDestroy")
     }
 }
