@@ -112,6 +112,8 @@ object Controller : IController {
             notVisitedCell = Cell(),
             listOfMoves = mutableListOf()
         )
+
+        settings.listOfActions = mutableListOf()
     }
 
 
@@ -139,6 +141,9 @@ object Controller : IController {
 
         // set cell img in the grid layout
         this.settings.gridLayoutImgId[row][col] = imgId
+
+        // add current Game State to the history list
+        settings.listOfActions.add(gameState)
 
         when(checkForWinner()){
             settings.firstPlayer -> {gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)}
@@ -180,6 +185,9 @@ object Controller : IController {
 
         // set cell img in the grid layout
         this.settings.gridLayoutImgId[row][col] = imgId
+
+        // add current Game State to the history list
+        settings.listOfActions.add(gameState)
 
         when(checkForWinner()){
             settings.firstPlayer -> {gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)}

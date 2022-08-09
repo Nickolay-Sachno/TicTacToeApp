@@ -12,10 +12,6 @@ import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.databinding.FragmentEntryBinding
 import com.example.tictactoe.enum.GameType
-import com.example.tictactoe.gamescreen.GameScreenFragmentDirections
-import com.example.tictactoe.settings.CellTypeImg
-import com.example.tictactoe.settings.Settings
-import com.example.tictactoe.settings.UserData
 
 class EntryFragment : Fragment(), IEntryView {
 
@@ -37,10 +33,10 @@ class EntryFragment : Fragment(), IEntryView {
         super.onViewCreated(view, savedInstanceState)
         // setting up clickable buttons
         setClickableButtons()
+        Controller.createGameBasedOnTypeGame()
     }
 
     private fun setClickableButtons(){
-        val settingsData = Controller.settings
         binding.apply {
             playerVsPlayer.setOnClickListener{v : View ->
                 //v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToGameScreenFragment(GameType.PLAYER_VS_PLAYER.name))

@@ -10,12 +10,6 @@
         android:label="@string/TicTacToe"
         tools:layout="@layout/fragment_entry">
         <action
-            android:id="@+id/action_entryFragment_to_gameScreenFragment"
-            app:destination="@id/gameScreenFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popExitAnim="@anim/slide_out_left"/>
-        <action
             android:id="@+id/action_entryFragment_to_settingsFragment"
             app:destination="@id/settingsFragment"
             app:enterAnim="@anim/slide_in_left"
@@ -30,13 +24,6 @@
         android:name="com.example.tictactoe.gamescreen.GameScreenFragment"
         android:label="@string/TicTacToe"
         tools:layout="@layout/fragment_game_screen">
-        <action
-            android:id="@+id/action_gameScreenFragment_to_movesTrackingFragment"
-            app:destination="@id/movesTrackingFragment" />
-        <action
-            android:id="@+id/action_gameScreenFragment_to_entryFragment"
-            app:destination="@id/entryFragment"
-            app:enterAnim="@android:anim/slide_in_left" />
         <argument
             android:name="gameType"
             app:argType="string" />
@@ -45,11 +32,7 @@
         android:id="@+id/movesTrackingFragment"
         android:name="com.example.tictactoe.movestracking.MovesTrackingFragment"
         android:label="@string/TicTacToe"
-        tools:layout="@layout/fragment_moves_tracking" >
-        <action
-            android:id="@+id/action_movesTrackingFragment_to_gameScreenFragment"
-            app:destination="@id/gameScreenFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_moves_tracking" />
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.tictactoe.settings.SettingsFragment"
@@ -63,5 +46,12 @@
         android:id="@+id/hostGameScreenFragment"
         android:name="com.example.tictactoe.HostGameScreenFragment"
         android:label="@string/TicTacToe"
-        tools:layout="@layout/fragment_host_game_screen"/>
+        tools:layout="@layout/fragment_host_game_screen">
+        <action
+            android:id="@+id/action_hostGameScreenFragment_to_gameScreenFragment"
+            app:destination="@id/gameScreenFragment" />
+        <action
+            android:id="@+id/action_hostGameScreenFragment_to_movesTrackingFragment"
+            app:destination="@id/movesTrackingFragment" />
+    </fragment>
 </navigation>

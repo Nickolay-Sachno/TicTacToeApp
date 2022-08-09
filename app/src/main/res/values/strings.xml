@@ -11,4 +11,5 @@
     <string name="settings_switch_diff">AI</string>
     <string name="btn_text_moves">Moves</string>
     <string name="btn_text_board">Board</string>
+    <string name="moves_header_str">Moves History</string>
 </resources>

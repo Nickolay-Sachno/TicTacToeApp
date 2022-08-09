@@ -31,7 +31,7 @@ class MovesTrackingFragment : Fragment(), IMovesTrackingView {
         linearLayoutManager = LinearLayoutManager(this.requireContext())
         binding.recyclerView.layoutManager = linearLayoutManager
         binding.recyclerView.addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
-        adapter = RecyclerAdapter(Controller.settings.gameState.listOfMoves)
+        adapter = RecyclerAdapter(Controller.settings.listOfActions)
         binding.recyclerView.adapter = adapter
         return binding.root
     }
