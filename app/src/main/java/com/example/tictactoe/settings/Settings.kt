@@ -22,5 +22,6 @@ data class Settings(
         listOfPlayers = mutableListOf(firstPlayer.player, secondPlayer.player),
         notVisitedCell = Cell(),
         listOfMoves = mutableListOf()
-    )
+    ),
+    var gridLayoutImgId: Array<IntArray> = Array(3){IntArray(3)}
 ) : Serializable

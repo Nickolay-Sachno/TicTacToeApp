@@ -43,10 +43,16 @@ class EntryFragment : Fragment(), IEntryView {
         val settingsData = Controller.settings
         binding.apply {
             playerVsPlayer.setOnClickListener{v : View ->
-                v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToGameScreenFragment(GameType.PLAYER_VS_PLAYER.name))
+                //v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToGameScreenFragment(GameType.PLAYER_VS_PLAYER.name))
+                Controller.settings.typeGame = GameType.PLAYER_VS_PLAYER
+                Controller.createGameBasedOnTypeGame()
+                v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
             }
             playerVsAi.setOnClickListener {v : View ->
-                v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToGameScreenFragment(GameType.PLAYER_VS_AI.name))
+                Controller.settings.typeGame = GameType.PLAYER_VS_AI
+                Controller.createGameBasedOnTypeGame()
+                //v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToGameScreenFragment(GameType.PLAYER_VS_AI.name))
+                v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
             }
             settings.setOnClickListener {v : View ->
                 v.findNavController().navigate(EntryFragmentDirections.actionEntryFragmentToSettingsFragment())

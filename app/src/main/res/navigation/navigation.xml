@@ -21,6 +21,9 @@
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_left"
             app:popExitAnim="@anim/slide_out_left" />
+        <action
+            android:id="@+id/action_entryFragment_to_hostGameScreenFragment"
+            app:destination="@id/hostGameScreenFragment" />
     </fragment>
     <fragment
         android:id="@+id/gameScreenFragment"
@@ -56,4 +59,9 @@
             android:id="@+id/action_settingsFragment_to_entryFragment"
             app:destination="@id/entryFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/hostGameScreenFragment"
+        android:name="com.example.tictactoe.HostGameScreenFragment"
+        android:label="@string/TicTacToe"
+        tools:layout="@layout/fragment_host_game_screen"/>
 </navigation>
