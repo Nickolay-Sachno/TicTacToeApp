@@ -9,9 +9,10 @@
         <entry key="app/src/main/res/layout/fragment_entry.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_game_screen.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_host_game_screen.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/fragment_moves_tracking.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_moves_tracking.xml" value="0.5" />
         <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.5898021308980214" />
         <entry key="app/src/main/res/layout/frame_textview.xml" value="0.23796296296296296" />
+        <entry key="app/src/main/res/layout/recyclerview_item_row.xml" value="0.40260416666666665" />
         <entry key="app/src/main/res/menu/menu_bottom_nav.xml" value="0.3098958333333333" />
       </map>
     </option>
