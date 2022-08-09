@@ -91,7 +91,7 @@ object Controller : IController {
     // updates the game state based on settings
     override fun createGameBasedOnTypeGame() {
         // create players based on game type and agent difficulty
-        when(settings.typeGame){
+        when(this.settings.typeGame){
             GameType.PLAYER_VS_PLAYER -> {
                 settings.secondPlayer = UserData(
                     player = User(cellType = CellType.CIRCLE),
@@ -108,7 +108,7 @@ object Controller : IController {
         }
         settings.gameState = GameState(
             grid = Grid(3),
-            listOfPlayers = mutableListOf(settings.firstPlayer.player, settings.secondPlayer.player),
+            listOfPlayers = mutableListOf(this.settings.firstPlayer.player, this.settings.secondPlayer.player),
             notVisitedCell = Cell(),
             listOfMoves = mutableListOf()
         )
