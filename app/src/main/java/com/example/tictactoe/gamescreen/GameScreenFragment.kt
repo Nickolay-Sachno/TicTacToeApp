@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
@@ -27,6 +26,7 @@ class GameScreenFragment : Fragment(), IGameScreenView {
     private val recyclerView: RecyclerView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        println("GameScreenFragment: onCreate")
         super.onCreate(savedInstanceState)
     }
 
@@ -34,27 +34,22 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        println("GameScreenFragment: onCreateVIew")
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_game_screen, container, false)
-        Controller.setFragment(this)
-        var args = GameScreenFragmentArgs.fromBundle(arguments!!)
-        Controller.setGameType(args.gameType)
-        Controller.createGameBasedOnTypeGame()
 
-        //binding.gridLayout.visibility = View.INVISIBLE
+        // set the view based on the Controller Settings
+        if(!Controller.settings.gameState.grid.isEmpty())
+            restoreViewFromController()
+
+        // inform the controller about the current fragment
+        Controller.setFragment(this)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.fragment = this
-
-        binding.changeViewBtn.setOnClickListener{ v: View ->
-            when(binding.changeViewBtn.text){
-                "Moves" -> changeToMoves()
-                "Board" -> changeToBoard()
-            }
-        }
     }
 
     fun onGridSelected(row: Int, col: Int){
@@ -81,30 +76,31 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         CoroutineScope(Main).launch {
             delay(2000)
             try{
-                findNavController().navigate(R.id.action_gameScreenFragment_to_entryFragment)
+                activity?.onBackPressed()
+                //findNavController().navigate(R.id.action_gameScreenFragment_to_entryFragment)
             } catch(e : Exception ){
                 return@launch
             }
         }
     }
 
-    override fun changeToBoard() {
-        println("Change to Board")
+    override fun restoreViewFromController() {
         binding.apply {
-            recycleView.visibility = View.INVISIBLE
-            gridLayout.visibility = View.VISIBLE
-            changeViewBtn.text = "Moves"
-            changeBtnImageView.setImageResource(R.drawable.ic_menu_history_image)
-        }
-    }
-
-    override fun changeToMoves() {
-        println("Change to Moves")
-        binding.apply {
-            recycleView.visibility = View.VISIBLE
-            gridLayout.visibility = View.INVISIBLE
-            changeViewBtn.text = "Board"
-            changeBtnImageView.setImageResource(R.drawable.ic_dialog_dialer)
+            currentPlayerImg.setImageResource(
+                when(Controller.settings.gameState.currentTurn()){
+                    Controller.settings.firstPlayer.player -> Controller.settings.firstPlayer.cellTypeImg.id
+                    Controller.settings.secondPlayer.player -> Controller.settings.secondPlayer.cellTypeImg.id
+                    else -> 0
+                })
+            imageView00.setImageResource(Controller.settings.gridLayoutImgId[0][0])
+            imageView01.setImageResource(Controller.settings.gridLayoutImgId[0][1])
+            imageView02.setImageResource(Controller.settings.gridLayoutImgId[0][2])
+            imageView10.setImageResource(Controller.settings.gridLayoutImgId[1][0])
+            imageView11.setImageResource(Controller.settings.gridLayoutImgId[1][1])
+            imageView12.setImageResource(Controller.settings.gridLayoutImgId[1][2])
+            imageView20.setImageResource(Controller.settings.gridLayoutImgId[2][0])
+            imageView21.setImageResource(Controller.settings.gridLayoutImgId[2][1])
+            imageView22.setImageResource(Controller.settings.gridLayoutImgId[2][2])
         }
     }
 

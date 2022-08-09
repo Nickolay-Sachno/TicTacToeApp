@@ -35,10 +35,14 @@ object Controller : IController {
             GameType.PLAYER_VS_PLAYER -> playUser(row,col)
             GameType.PLAYER_VS_AI -> {
                 playUser(row,col)
-                CoroutineScope(Main).launch {
-                    delay(1000)
-                    playAgent()
-                }
+                // if first player wins, ai shouldn't make a move
+                if(
+                    !gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) ||
+                        !gameState.isStandOff())
+                    CoroutineScope(Main).launch {
+                        delay(1000)
+                        playAgent()
+                    }
             }
         }
 
@@ -133,6 +137,9 @@ object Controller : IController {
         // set grid cell img
         gameScreenFragment.setCellImg(row, col, imgId)
 
+        // set cell img in the grid layout
+        this.settings.gridLayoutImgId[row][col] = imgId
+
         when(checkForWinner()){
             settings.firstPlayer -> {gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)}
             settings.secondPlayer -> {gameScreenFragment.navigateToStart(SECOND_PLAYER_WINS)}
@@ -170,6 +177,9 @@ object Controller : IController {
         gameState.listOfMoves.add(Pair(row,col))
         gameState = gameState.updateGameState()
         gameScreenFragment.setCellImg(row, col, imgId)
+
+        // set cell img in the grid layout
+        this.settings.gridLayoutImgId[row][col] = imgId
 
         when(checkForWinner()){
             settings.firstPlayer -> {gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)}
