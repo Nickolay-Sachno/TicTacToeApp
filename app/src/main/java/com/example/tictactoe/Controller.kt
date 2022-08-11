@@ -114,6 +114,9 @@ object Controller : IController {
         )
 
         settings.listOfActions = mutableListOf()
+
+        // clear the Img grid
+        settings.gridLayoutImgId = Array(3){IntArray(3)}
     }
 
 
