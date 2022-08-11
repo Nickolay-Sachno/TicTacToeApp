@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/current_grid"
+        android:layout_width="106dp"
+        android:layout_height="62dp"
+        android:layout_gravity="center|start"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/last_player_played"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:text="TextView"
+        android:layout_gravity="center|start"
+        app:layout_constraintBottom_toBottomOf="@+id/current_grid"
+        app:layout_constraintStart_toEndOf="@+id/current_grid"
+        app:layout_constraintTop_toTopOf="@+id/current_grid" />
+
+    <TextView
+        android:id="@+id/last_move"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:text="TextView"
+        android:layout_gravity="center|start"
+        app:layout_constraintBottom_toBottomOf="@+id/current_grid"
+        app:layout_constraintStart_toEndOf="@+id/last_player_played"
+        app:layout_constraintTop_toTopOf="@+id/current_grid"
+        app:layout_constraintVertical_bias="0.0" />
+</androidx.constraintlayout.widget.ConstraintLayout>
