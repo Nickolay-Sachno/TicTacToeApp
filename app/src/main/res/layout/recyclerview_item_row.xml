@@ -4,16 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:padding="@dimen/recycler_view_item_row_padding">
 
     <TextView
         android:id="@+id/current_grid"
-        android:layout_width="106dp"
-        android:layout_height="62dp"
+        android:layout_width="@dimen/recycler_view_item_row_grid_width"
+        android:layout_height="@dimen/recycler_view_item_row_grid_height"
         android:layout_gravity="center|start"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
         android:text="TextView"
+        android:layout_marginStart="@dimen/recycler_view_item_row_grid_margin_side"
+        android:layout_marginTop="@dimen/recycler_view_item_row_grid_margin_top"
+        android:layout_marginEnd="@dimen/recycler_view_item_row_grid_margin_side"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -21,10 +22,11 @@
         android:id="@+id/last_player_played"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:text="TextView"
         android:layout_gravity="center|start"
+        android:layout_marginStart="@dimen/recycler_view_item_row_player_margin_side"
+        android:text="TextView"
         app:layout_constraintBottom_toBottomOf="@+id/current_grid"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/current_grid"
         app:layout_constraintTop_toTopOf="@+id/current_grid" />
 
@@ -32,10 +34,11 @@
         android:id="@+id/last_move"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:text="TextView"
         android:layout_gravity="center|start"
+        android:layout_marginStart="@dimen/recycler_view_item_row_move_margin_side"
+        android:text="TextView"
         app:layout_constraintBottom_toBottomOf="@+id/current_grid"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/last_player_played"
         app:layout_constraintTop_toTopOf="@+id/current_grid"
         app:layout_constraintVertical_bias="0.0" />

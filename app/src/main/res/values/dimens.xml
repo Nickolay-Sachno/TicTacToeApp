@@ -1,5 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Entry Fragment -->
+    <dimen name="entry_button_height">70dp</dimen>
+    <dimen name="entry_button_text_size">20sp</dimen>
+
+    <!-- Game Screen Fragment -->
+    <dimen name="game_screen_turn_height">70dp</dimen>
+    <dimen name="game_screen_turn_width">80dp</dimen>
+    <dimen name="grid_layout_height">350dp</dimen>
+    <dimen name="grid_layout_width">350dp</dimen>
+    <dimen name="grid_layout_margin_side">4dp</dimen>
+    <dimen name="grid_layout_margin_top">16dp</dimen>
+    <dimen name="grid_layout_margin_bottom">16dp</dimen>
+
+    <!-- Settings Fragment -->
+    <dimen name="settings_ai_margin_side">16dp</dimen>
+    <dimen name="settings_ai_margin_top">16dp</dimen>
+    <dimen name="settings_ai_margin_bottom">16dp</dimen>
+    <dimen name="setting_switch_margin_start">160dp</dimen>
+    <dimen name="settings_switch_margin_end">16dp</dimen>
+    <dimen name="settings_switch_min_height">48dp</dimen>
+    <dimen name="settings_ai_text_size">34sp</dimen>
+
+    <!-- Moves Tracking Fragment -->
+    <dimen name="recycler_view_width">350dp</dimen>
+    <dimen name="recycler_view_height">350dp</dimen>
+    <dimen name="recycler_view_margin_side">4dp</dimen>
+    <dimen name="recycler_view_margin_top">16dp</dimen>
+    <dimen name="recycler_view_margin_bottom">16dp</dimen>
+    <dimen name="recycler_view_header_margin_top">16dp</dimen>
+    <dimen name="recycler_view_header_text_size">34sp</dimen>
+
+    <!-- Recycler View Item Row -->
+    <dimen name="recycler_view_item_row_padding">10dp</dimen>
+    <dimen name="recycler_view_item_row_grid_width">100dp</dimen>
+    <dimen name="recycler_view_item_row_grid_height">70dp</dimen>
+    <dimen name="recycler_view_item_row_grid_margin_side">16dp</dimen>
+    <dimen name="recycler_view_item_row_grid_margin_top">16dp</dimen>
+    <dimen name="recycler_view_item_row_player_margin_side">8dp</dimen>
+    <dimen name="recycler_view_item_row_move_margin_side">16dp</dimen>
+
+    <!-- Host Navigation Bar -->
+    <dimen name="bottom_navigation_height">60dp</dimen>
+
 
 </resources>

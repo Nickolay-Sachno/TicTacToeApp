@@ -12,4 +12,6 @@
     <string name="btn_text_moves">Moves</string>
     <string name="btn_text_board">Board</string>
     <string name="moves_header_str">Moves History</string>
+    <string name="settings_switch_text_off">Off</string>
+    <string name="settings_switch_text_on">On</string>
 </resources>
