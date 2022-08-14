@@ -16,4 +16,5 @@ interface IController {
     fun setFragment(fragment: Any)
     fun setGameType(gameType: String)
     fun createGameBasedOnTypeGame()
+    fun inflateWinner(firstPlayer: PlayerData)
 }

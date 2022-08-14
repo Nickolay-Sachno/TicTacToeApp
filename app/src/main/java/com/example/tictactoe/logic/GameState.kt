@@ -3,7 +3,8 @@ class GameState(
     val listOfPlayers: MutableList<Player>,
     val notVisitedCell: Cell,
     val listOfMoves : MutableList<Pair<Int,Int>>,
-    var mPrevGameState: GameState? = null) {
+    var mPrevGameState: GameState? = null,
+    val listOfWinMoves: MutableList<Pair<Int, Int>> = mutableListOf()) {
 
     override fun toString(): String {
         return "$grid\n"
@@ -54,6 +55,7 @@ class GameState(
         // check from left top corner to right bottom
         for(i in 0 until n){
             if(cell.content == getCell(i,i).content) {
+                listOfWinMoves.add(Pair(i,i))
                 seq++
             }
         }
@@ -62,6 +64,13 @@ class GameState(
             return true
         }
         else{
+            listOfWinMoves.apply {
+                try {
+                    removeLast()
+                    removeLast()
+                    removeLast()
+                }   catch (e : Exception) {}
+            }
             seq = 0
         }
 
@@ -69,12 +78,20 @@ class GameState(
         var j = n-1
         for(i in 0 until n){
             if (cell.content == getCell(i,j).content) {
+                listOfWinMoves.add(Pair(i,j))
                 seq++
             }
             j--
         }
         if(seq == n) {
             return true
+        }
+        listOfWinMoves.apply {
+            try {
+                removeLast()
+                removeLast()
+                removeLast()
+            }   catch (e : Exception) {}
         }
         return false
     }
@@ -84,13 +101,22 @@ class GameState(
         var seq = 0
         for(i in 0 until n){
             for(j in 0 until n){
-                if(getCell(j,i).content == cell.content)
-                    seq ++
+                if(getCell(j,i).content == cell.content) {
+                    listOfWinMoves.add(Pair(j, i))
+                    seq++
+                }
             }
             if(seq == n) {
                 return true
             }
             else{
+                listOfWinMoves.apply {
+                    try {
+                        removeLast()
+                        removeLast()
+                        removeLast()
+                    }   catch (e : Exception) {}
+                }
                 seq = 0
             }
         }
@@ -98,9 +124,31 @@ class GameState(
     }
 
     fun isHorizontalWin(cell: Cell): Boolean {
-        return grid.matrix.any { row ->
-            row.all { it ->  it.content == cell.content }
+        val n = getGridSize()
+        var seq = 0
+
+        for(i in 0 until n){
+            for (j in 0 until n){
+                if(getCell(i,j).content == cell.content) {
+                    listOfWinMoves.add(Pair(j, i))
+                    seq++
+                }
+            }
+            if(seq == n) {
+                return true
+            }
+            else{
+                listOfWinMoves.apply {
+                    try {
+                        removeLast()
+                        removeLast()
+                        removeLast()
+                    }   catch (e : Exception) {}
+                }
+                seq = 0
+            }
         }
+        return false
     }
 
     fun isStandOff(): Boolean {

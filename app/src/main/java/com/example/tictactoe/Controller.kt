@@ -1,13 +1,13 @@
 package com.example.tictactoe
 
 import Cell
-import GFG1.player
 import GameState
 import Grid
 import Player
 import User
 import com.example.tictactoe.entry.IEntryView
 import com.example.tictactoe.enum.GameType
+import com.example.tictactoe.gamescreen.GameScreenFragment
 import com.example.tictactoe.gamescreen.IGameScreenView
 import com.example.tictactoe.settings.*
 import kotlinx.coroutines.CoroutineScope
@@ -53,10 +53,12 @@ object Controller : IController {
 
         when{
             // first player wins
-            gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) ->
-                return settings.firstPlayer
+            gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) -> {
+                inflateWinner(settings.firstPlayer)
+                return settings.firstPlayer}
             // second player wins
             gameState.isWinState(Cell(content = settings.secondPlayer.player.cellType)) -> {
+                inflateWinner(settings.secondPlayer)
                 return settings.secondPlayer
             }
             // standoff
@@ -117,6 +119,26 @@ object Controller : IController {
 
         // clear the Img grid
         settings.gridLayoutImgId = Array(3){IntArray(3)}
+    }
+
+    override fun inflateWinner(winPlayer: PlayerData) {
+        if(fragment is IGameScreenView){
+            val gameScreenFragment = fragment as IGameScreenView
+            gameScreenFragment.apply {
+                setCellImg(
+                    settings.gameState.listOfWinMoves[0].first,
+                    settings.gameState.listOfWinMoves[0].second,
+                    winPlayer.winCellTypeImg.id)
+                setCellImg(
+                    settings.gameState.listOfWinMoves[1].first,
+                    settings.gameState.listOfWinMoves[1].second,
+                    winPlayer.winCellTypeImg.id)
+                setCellImg(
+                    settings.gameState.listOfWinMoves[2].first,
+                    settings.gameState.listOfWinMoves[2].second,
+                    winPlayer.winCellTypeImg.id)
+            }
+        } else throw IllegalArgumentException()
     }
 
 
