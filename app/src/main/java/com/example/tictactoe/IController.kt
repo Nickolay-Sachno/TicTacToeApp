@@ -9,7 +9,7 @@ import com.example.tictactoe.settings.SettingsFragment
 
 interface IController {
 
-    fun onGridCellSelected(row : Int, col : Int)
+    fun onCellSelected(row : Int, col : Int)
     fun playUser(row: Int, col: Int)
     fun playAgent()
     fun checkForWinner() : PlayerData?

@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 
 
 private const val FIRST_PLAYER_WIN = "First Player Wins!"
@@ -27,10 +28,7 @@ object Controller : IController {
     var settings: Settings = Settings()
     var fragment: View? = null
 
-    override fun onGridCellSelected(row: Int, col: Int){
-        // lock user from typing on screen
-        fragment?.let { lockUserScreen(it) }
-
+    override fun onCellSelected(row: Int, col: Int){
         var gameState : GameState = settings.gameState
         // if the cell already been visited
         if(gameState.getCell(row,col).content != CellType.EMPTY) return
@@ -49,9 +47,6 @@ object Controller : IController {
                     }
             }
         }
-
-        // unlock game screen
-        fragment?.let { unlockUserScreen(it) }
     }
 
     override fun checkForWinner() : PlayerData?{
@@ -160,8 +155,10 @@ object Controller : IController {
     }
 
     override fun playAgent() {
-        var gameState : GameState = settings.gameState
+        // lock user from input on cells
+        fragment?.let { lockUserScreen(it) }
 
+        var gameState : GameState = settings.gameState
         val gameScreenFragment = fragment as IGameScreenView
 
         val currentPlayer = gameState.getNextPlayer()
@@ -177,7 +174,7 @@ object Controller : IController {
         gameState = gameState.updateGameState()
 
         // set turn img
-        gameScreenFragment.setCellImg(-1,-1,CellTypeImg.CROSS_BLACK.id)
+        gameScreenFragment.setTurnImg(CellTypeImg.CROSS_BLACK.id)
         // set grid cell img
         gameScreenFragment.setCellImg(row, col, imgId)
 
@@ -187,58 +184,25 @@ object Controller : IController {
         // add current Game State to the history list
         settings.listOfActions.add(gameState)
 
+        // unlock input for user
+        fragment?.let { unlockUserScreen(it) }
 
-        when(checkForWinner()){
-            settings.firstPlayer -> {
-                // unlock game screen
-                fragment?.let { unlockUserScreen(it) }
-
-                gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)
-            }
-            settings.secondPlayer -> {
-                // unlock game screen
-                fragment?.let { unlockUserScreen(it) }
-                gameScreenFragment.navigateToStart(SECOND_PLAYER_WINS)
-            }
-            else -> {
-                if (gameState.isStandOff()) {
-                    // unlock game screen
-                    fragment?.let { unlockUserScreen(it) }
-
-                    gameScreenFragment.navigateToStart(STANDOFF)
-                }
-            }
-        }
+        checkForWinnerAndNavigateToStart()
     }
 
     override fun playUser(row: Int, col: Int) {
+        // lock user from input on cells
+        fragment?.let { lockUserScreen(it) }
 
         var gameState : GameState = settings.gameState
         val gameScreenFragment = fragment as IGameScreenView
-        val imgId : Int = when(gameState.currentTurn().cellType){
-            CellType.CROSS -> {
-                gameState.setCell(Cell(
-                    row = row,
-                    col = col,
-                    content = CellType.CROSS
-                ))
-                gameScreenFragment.setCellImg(-1,-1,CellTypeImg.CIRCLE_BLACK.id)
-                CellTypeImg.CROSS_BLACK.id
-            }
-            CellType.CIRCLE -> {
-                gameState.setCell(Cell(
-                    row = row,
-                    col = col,
-                    content = CellType.CIRCLE
-                ))
-                gameScreenFragment.setCellImg(-1,-1,CellTypeImg.CROSS_BLACK.id)
-                CellTypeImg.CIRCLE_BLACK.id
-            }
-            else -> {0}
-        }
+
+        val imgId : Int = setUserImgId(row, col)
+
         gameState.getNextPlayer()
         gameState.listOfMoves.add(Pair(row,col))
         gameState = gameState.updateGameState()
+
         gameScreenFragment.setCellImg(row, col, imgId)
 
         // set cell img in the grid layout
@@ -247,29 +211,11 @@ object Controller : IController {
         // add current Game State to the history list
         settings.listOfActions.add(gameState)
 
+        // unlock input for user
+        fragment?.let { unlockUserScreen(it) }
 
-        when(checkForWinner()){
-            settings.firstPlayer -> {
-                // unlock game screen
-                fragment?.let { unlockUserScreen(it) }
+        checkForWinnerAndNavigateToStart()
 
-                gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)
-            }
-            settings.secondPlayer -> {
-                // unlock game screen
-                fragment?.let { unlockUserScreen(it) }
-
-                gameScreenFragment.navigateToStart(SECOND_PLAYER_WINS)
-            }
-            else -> {
-                if (gameState.isStandOff()) {
-                    // unlock game screen
-                    fragment?.let { unlockUserScreen(it) }
-
-                    gameScreenFragment.navigateToStart(STANDOFF)
-                }
-            }
-        }
     }
 
 
@@ -302,6 +248,32 @@ object Controller : IController {
         }
         else{
             throw IllegalArgumentException()
+        }
+    }
+
+    private fun setUserImgId(row: Int, col: Int) : Int{
+        var gameState : GameState = settings.gameState
+        val gameScreenFragment = fragment as IGameScreenView
+        return when(gameState.currentTurn().cellType){
+            CellType.CROSS -> {
+                gameState.setCell(Cell(
+                    row = row,
+                    col = col,
+                    content = CellType.CROSS
+                ))
+                gameScreenFragment.setTurnImg(CellTypeImg.CIRCLE_BLACK.id)
+                CellTypeImg.CROSS_BLACK.id
+            }
+            CellType.CIRCLE -> {
+                gameState.setCell(Cell(
+                    row = row,
+                    col = col,
+                    content = CellType.CIRCLE
+                ))
+                gameScreenFragment.setTurnImg(CellTypeImg.CROSS_BLACK.id)
+                CellTypeImg.CIRCLE_BLACK.id
+            }
+            else -> throw IllegalStateException()
         }
     }
 }

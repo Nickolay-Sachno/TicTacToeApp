@@ -51,13 +51,13 @@ class HostGameScreenFragment : Fragment() {
             R.id.board ->{
                 if(currentOpenFragment is MovesTrackingFragment) {
                 currentOpenFragment = GameScreenFragment()
-                loadFragment(GameScreenFragment())
+                loadFragment(fragment)
                 }
             }
             R.id.moves -> {
                 if(currentOpenFragment is GameScreenFragment) {
                     currentOpenFragment = MovesTrackingFragment()
-                    loadFragment(MovesTrackingFragment())
+                    loadFragment(fragment)
                 }
             }
         }

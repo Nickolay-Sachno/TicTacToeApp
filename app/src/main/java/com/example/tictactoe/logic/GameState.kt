@@ -130,7 +130,7 @@ class GameState(
         for(i in 0 until n){
             for (j in 0 until n){
                 if(getCell(i,j).content == cell.content) {
-                    listOfWinMoves.add(Pair(j, i))
+                    listOfWinMoves.add(Pair(i,j))
                     seq++
                 }
             }

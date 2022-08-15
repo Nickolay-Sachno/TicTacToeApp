@@ -5,7 +5,6 @@ import android.view.*
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.databinding.FragmentGameScreenBinding
@@ -33,7 +32,6 @@ class GameScreenFragment : Fragment(), IGameScreenView {
 
         // inform the controller about the current fragment
         Controller.setFragment(this)
-        binding.clickable = true
         return binding.root
     }
 
@@ -43,7 +41,7 @@ class GameScreenFragment : Fragment(), IGameScreenView {
     }
 
     fun onGridSelected(row: Int, col: Int){
-        Controller.onGridCellSelected(row, col)
+        Controller.onCellSelected(row, col)
     }
 
     override fun setCellImg(row: Int, col: Int, imgId: Int) {
@@ -57,7 +55,6 @@ class GameScreenFragment : Fragment(), IGameScreenView {
             "2,0" -> binding.imageView20.setImageResource(imgId)
             "2,1" -> binding.imageView21.setImageResource(imgId)
             "2,2" -> binding.imageView22.setImageResource(imgId)
-            else -> binding.currentPlayerImg.setImageResource(imgId)
         }
     }
 
@@ -96,8 +93,40 @@ class GameScreenFragment : Fragment(), IGameScreenView {
 
     override fun setFragmentClickable(name: String){
         when(name){
-            "LOCK" -> binding.clickable = false
-            "UNLOCK" -> binding.clickable = true
+            "LOCK" -> lockCells()
+            "UNLOCK" -> unlockCells()
+        }
+    }
+
+    override fun setTurnImg(imgId: Int) {
+        binding.currentPlayerImg.setImageResource(imgId)
+    }
+
+    private fun lockCells(){
+        binding.apply {
+            imageView00.isEnabled = false
+            imageView01.isEnabled = false
+            imageView02.isEnabled = false
+            imageView10.isEnabled = false
+            imageView11.isEnabled = false
+            imageView12.isEnabled = false
+            imageView20.isEnabled = false
+            imageView21.isEnabled = false
+            imageView22.isEnabled = false
+        }
+    }
+
+    private fun unlockCells(){
+        binding.apply {
+            imageView00.isEnabled = true
+            imageView01.isEnabled = true
+            imageView02.isEnabled = true
+            imageView10.isEnabled = true
+            imageView11.isEnabled = true
+            imageView12.isEnabled = true
+            imageView20.isEnabled = true
+            imageView21.isEnabled = true
+            imageView22.isEnabled = true
         }
     }
 }
