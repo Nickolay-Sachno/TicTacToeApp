@@ -28,6 +28,9 @@ object Controller : IController {
     var fragment: View? = null
 
     override fun onGridCellSelected(row: Int, col: Int){
+        // lock user from typing on screen
+        fragment?.let { lockUserScreen(it) }
+
         var gameState : GameState = settings.gameState
         // if the cell already been visited
         if(gameState.getCell(row,col).content != CellType.EMPTY) return
@@ -47,6 +50,8 @@ object Controller : IController {
             }
         }
 
+        // unlock game screen
+        fragment?.let { unlockUserScreen(it) }
     }
 
     override fun checkForWinner() : PlayerData?{
@@ -155,8 +160,6 @@ object Controller : IController {
     }
 
     override fun playAgent() {
-        // lock game screen
-        fragment?.let { lockUserScreen(it) }
         var gameState : GameState = settings.gameState
 
         val gameScreenFragment = fragment as IGameScreenView
@@ -184,21 +187,31 @@ object Controller : IController {
         // add current Game State to the history list
         settings.listOfActions.add(gameState)
 
-        // unlock game screen
-        fragment?.let { unlockUserScreen(it) }
 
         when(checkForWinner()){
-            settings.firstPlayer -> {gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)}
-            settings.secondPlayer -> {gameScreenFragment.navigateToStart(SECOND_PLAYER_WINS)}
+            settings.firstPlayer -> {
+                // unlock game screen
+                fragment?.let { unlockUserScreen(it) }
+
+                gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)
+            }
+            settings.secondPlayer -> {
+                // unlock game screen
+                fragment?.let { unlockUserScreen(it) }
+                gameScreenFragment.navigateToStart(SECOND_PLAYER_WINS)
+            }
             else -> {
-                if (gameState.isStandOff()) gameScreenFragment.navigateToStart(STANDOFF)
+                if (gameState.isStandOff()) {
+                    // unlock game screen
+                    fragment?.let { unlockUserScreen(it) }
+
+                    gameScreenFragment.navigateToStart(STANDOFF)
+                }
             }
         }
     }
 
     override fun playUser(row: Int, col: Int) {
-        // lock the game screen
-        fragment?.let { lockUserScreen(it) }
 
         var gameState : GameState = settings.gameState
         val gameScreenFragment = fragment as IGameScreenView
@@ -234,15 +247,61 @@ object Controller : IController {
         // add current Game State to the history list
         settings.listOfActions.add(gameState)
 
-        // unlock the game screen
-        fragment?.let { unlockUserScreen(it) }
 
         when(checkForWinner()){
-            settings.firstPlayer -> {gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)}
-            settings.secondPlayer -> {gameScreenFragment.navigateToStart(SECOND_PLAYER_WINS)}
-            else -> {
-                if (gameState.isStandOff()) gameScreenFragment.navigateToStart(STANDOFF)
+            settings.firstPlayer -> {
+                // unlock game screen
+                fragment?.let { unlockUserScreen(it) }
+
+                gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)
             }
+            settings.secondPlayer -> {
+                // unlock game screen
+                fragment?.let { unlockUserScreen(it) }
+
+                gameScreenFragment.navigateToStart(SECOND_PLAYER_WINS)
+            }
+            else -> {
+                if (gameState.isStandOff()) {
+                    // unlock game screen
+                    fragment?.let { unlockUserScreen(it) }
+
+                    gameScreenFragment.navigateToStart(STANDOFF)
+                }
+            }
+        }
+    }
+
+
+    private fun checkForWinnerAndNavigateToStart(){
+        if(fragment is IGameScreenView) {
+            val gameScreenFragment = fragment as IGameScreenView
+            var gameState : GameState = settings.gameState
+            when (checkForWinner()) {
+                settings.firstPlayer -> {
+                    // unlock game screen
+                    fragment?.let { unlockUserScreen(it) }
+
+                    gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)
+                }
+                settings.secondPlayer -> {
+                    // unlock game screen
+                    fragment?.let { unlockUserScreen(it) }
+
+                    gameScreenFragment.navigateToStart(SECOND_PLAYER_WINS)
+                }
+                else -> {
+                    if (gameState.isStandOff()) {
+                        // unlock game screen
+                        fragment?.let { unlockUserScreen(it) }
+
+                        gameScreenFragment.navigateToStart(STANDOFF)
+                    }
+                }
+            }
+        }
+        else{
+            throw IllegalArgumentException()
         }
     }
 }
