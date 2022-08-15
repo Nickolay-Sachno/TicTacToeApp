@@ -7,12 +7,16 @@
         <variable
             name="fragment"
             type="com.example.tictactoe.gamescreen.GameScreenFragment" />
+        <variable
+            name="clickable"
+            type="Boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".GameScreenFragment">
+        tools:context=".GameScreenFragment"
+        android:clickable="@{clickable}">
 
         <TextView
             android:id="@+id/currentPlayer"

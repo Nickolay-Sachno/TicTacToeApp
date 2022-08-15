@@ -17,7 +17,10 @@
             app:popExitAnim="@anim/slide_out_left" />
         <action
             android:id="@+id/action_entryFragment_to_hostGameScreenFragment"
-            app:destination="@id/hostGameScreenFragment" />
+            app:destination="@id/hostGameScreenFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_left"
+            app:popExitAnim="@anim/slide_out_left" />
     </fragment>
     <fragment
         android:id="@+id/gameScreenFragment"
@@ -49,9 +52,15 @@
         tools:layout="@layout/fragment_host_game_screen">
         <action
             android:id="@+id/action_hostGameScreenFragment_to_gameScreenFragment"
-            app:destination="@id/gameScreenFragment" />
+            app:destination="@id/gameScreenFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_left"
+            app:popExitAnim="@anim/slide_out_left" />
         <action
             android:id="@+id/action_hostGameScreenFragment_to_movesTrackingFragment"
-            app:destination="@id/movesTrackingFragment" />
+            app:destination="@id/movesTrackingFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_left"
+            app:popExitAnim="@anim/slide_out_left" />
     </fragment>
 </navigation>

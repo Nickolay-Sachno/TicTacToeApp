@@ -7,7 +7,6 @@ import Player
 import User
 import com.example.tictactoe.entry.IEntryView
 import com.example.tictactoe.enum.GameType
-import com.example.tictactoe.gamescreen.GameScreenFragment
 import com.example.tictactoe.gamescreen.IGameScreenView
 import com.example.tictactoe.settings.*
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +19,8 @@ import java.lang.IllegalArgumentException
 private const val FIRST_PLAYER_WIN = "First Player Wins!"
 private const val SECOND_PLAYER_WINS = "Second Player Wins!"
 private const val STANDOFF  = "It's a Standoff"
+private const val LOCK = "LOCK"
+private const val UNLOCK = "UNLOCK"
 
 object Controller : IController {
 
@@ -141,8 +142,21 @@ object Controller : IController {
         } else throw IllegalArgumentException()
     }
 
+    override fun lockUserScreen(view: View) {
+        when(view){
+            is IGameScreenView -> view.setFragmentClickable(LOCK)
+        }
+    }
+
+    override fun unlockUserScreen(view: View) {
+        when(view){
+            is IGameScreenView -> view.setFragmentClickable(UNLOCK)
+        }
+    }
 
     override fun playAgent() {
+        // lock game screen
+        fragment?.let { lockUserScreen(it) }
         var gameState : GameState = settings.gameState
 
         val gameScreenFragment = fragment as IGameScreenView
@@ -170,6 +184,9 @@ object Controller : IController {
         // add current Game State to the history list
         settings.listOfActions.add(gameState)
 
+        // unlock game screen
+        fragment?.let { unlockUserScreen(it) }
+
         when(checkForWinner()){
             settings.firstPlayer -> {gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)}
             settings.secondPlayer -> {gameScreenFragment.navigateToStart(SECOND_PLAYER_WINS)}
@@ -180,6 +197,9 @@ object Controller : IController {
     }
 
     override fun playUser(row: Int, col: Int) {
+        // lock the game screen
+        fragment?.let { lockUserScreen(it) }
+
         var gameState : GameState = settings.gameState
         val gameScreenFragment = fragment as IGameScreenView
         val imgId : Int = when(gameState.currentTurn().cellType){
@@ -213,6 +233,9 @@ object Controller : IController {
 
         // add current Game State to the history list
         settings.listOfActions.add(gameState)
+
+        // unlock the game screen
+        fragment?.let { unlockUserScreen(it) }
 
         when(checkForWinner()){
             settings.firstPlayer -> {gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)}

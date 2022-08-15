@@ -1,10 +1,7 @@
 package com.example.tictactoe.gamescreen
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -23,19 +20,10 @@ class GameScreenFragment : Fragment(), IGameScreenView {
     lateinit var binding: FragmentGameScreenBinding
     lateinit var settings : Settings
 
-    // Add RecyclerView member
-    private val recyclerView: RecyclerView? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        println("GameScreenFragment: onCreate")
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        println("GameScreenFragment: onCreateVIew")
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_game_screen, container, false)
 
@@ -45,6 +33,7 @@ class GameScreenFragment : Fragment(), IGameScreenView {
 
         // inform the controller about the current fragment
         Controller.setFragment(this)
+        binding.clickable = true
         return binding.root
     }
 
@@ -102,6 +91,13 @@ class GameScreenFragment : Fragment(), IGameScreenView {
             imageView20.setImageResource(Controller.settings.gridLayoutImgId[2][0])
             imageView21.setImageResource(Controller.settings.gridLayoutImgId[2][1])
             imageView22.setImageResource(Controller.settings.gridLayoutImgId[2][2])
+        }
+    }
+
+    override fun setFragmentClickable(name: String){
+        when(name){
+            "LOCK" -> binding.clickable = false
+            "UNLOCK" -> binding.clickable = true
         }
     }
 }

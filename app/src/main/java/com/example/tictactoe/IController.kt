@@ -17,4 +17,6 @@ interface IController {
     fun setGameType(gameType: String)
     fun createGameBasedOnTypeGame()
     fun inflateWinner(firstPlayer: PlayerData)
+    fun lockUserScreen(view: View)
+    fun unlockUserScreen(view: View)
 }
