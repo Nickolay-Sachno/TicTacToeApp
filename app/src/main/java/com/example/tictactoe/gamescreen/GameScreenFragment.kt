@@ -106,6 +106,7 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         binding.progressBar.visibility = when(name){
             "visible" -> View.VISIBLE
             "invisible" -> View.INVISIBLE
+            "gone" -> View.GONE
             else -> throw IllegalArgumentException()
         }
     }

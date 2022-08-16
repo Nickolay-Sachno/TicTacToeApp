@@ -46,9 +46,10 @@ object Controller : IController {
             GameType.PLAYER_VS_AI -> {
                 playUser(row,col)
                 // if first player wins, ai shouldn't make a move
-                if(!gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) || !gameState.isStandOff()) {
-                    playAgentWithDelay(AGENT_DELAY_MOVE_TIME)
+                if(gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) || gameState.isStandOff()) {
+                    return
                 }
+                playAgentWithDelay(AGENT_DELAY_MOVE_TIME)
             }
         }
     }
@@ -231,22 +232,13 @@ object Controller : IController {
             val gameState : GameState = settings.gameState
             when (checkForWinner()) {
                 settings.firstPlayer -> {
-                    // unlock game screen
-                    fragment?.let { unlockUserScreen(it) }
-
                     gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)
                 }
                 settings.secondPlayer -> {
-                    // unlock game screen
-                    fragment?.let { unlockUserScreen(it) }
-
                     gameScreenFragment.navigateToStart(SECOND_PLAYER_WINS)
                 }
                 else -> {
                     if (gameState.isStandOff()) {
-                        // unlock game screen
-                        fragment?.let { unlockUserScreen(it) }
-
                         gameScreenFragment.navigateToStart(STANDOFF)
                     }
                 }
