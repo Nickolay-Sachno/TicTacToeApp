@@ -44,5 +44,7 @@
     <!-- Host Navigation Bar -->
     <dimen name="bottom_navigation_height">60dp</dimen>
 
+    <!-- Progress Bar -->
+    <dimen name="progress_bar_margin_side">8dp</dimen>
 
 </resources>

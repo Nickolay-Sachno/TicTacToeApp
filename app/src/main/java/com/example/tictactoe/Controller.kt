@@ -10,6 +10,7 @@ import com.example.tictactoe.enum.GameType
 import com.example.tictactoe.gamescreen.IGameScreenView
 import com.example.tictactoe.settings.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -20,8 +21,15 @@ import java.lang.IllegalStateException
 private const val FIRST_PLAYER_WIN = "First Player Wins!"
 private const val SECOND_PLAYER_WINS = "Second Player Wins!"
 private const val STANDOFF  = "It's a Standoff"
+
 private const val LOCK = "LOCK"
 private const val UNLOCK = "UNLOCK"
+
+private const val VISIBLE = "visible"
+private const val INVISIBLE = "invisible"
+private const val GONE = "gone"
+
+private const val AGENT_DELAY_MOVE_TIME : Long = 1000
 
 object Controller : IController {
 
@@ -29,7 +37,7 @@ object Controller : IController {
     var fragment: View? = null
 
     override fun onCellSelected(row: Int, col: Int){
-        var gameState : GameState = settings.gameState
+        val gameState : GameState = settings.gameState
         // if the cell already been visited
         if(gameState.getCell(row,col).content != CellType.EMPTY) return
 
@@ -38,19 +46,15 @@ object Controller : IController {
             GameType.PLAYER_VS_AI -> {
                 playUser(row,col)
                 // if first player wins, ai shouldn't make a move
-                if(
-                    !gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) ||
-                        !gameState.isStandOff())
-                    CoroutineScope(Main).launch {
-                        delay(1000)
-                        playAgent()
-                    }
+                if(!gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) || !gameState.isStandOff()) {
+                    playAgentWithDelay(AGENT_DELAY_MOVE_TIME)
+                }
             }
         }
     }
 
     override fun checkForWinner() : PlayerData?{
-        var gameState : GameState = settings.gameState
+        val gameState : GameState = settings.gameState
 
         when{
             // first player wins
@@ -154,9 +158,13 @@ object Controller : IController {
         }
     }
 
+    override fun setProgressBarVisibility(view:View, name: String) {
+        when(view){
+            is IGameScreenView -> view.setProgressBarVisibility(name)
+        }
+    }
+
     override fun playAgent() {
-        // lock user from input on cells
-        fragment?.let { lockUserScreen(it) }
 
         var gameState : GameState = settings.gameState
         val gameScreenFragment = fragment as IGameScreenView
@@ -184,9 +192,6 @@ object Controller : IController {
         // add current Game State to the history list
         settings.listOfActions.add(gameState)
 
-        // unlock input for user
-        fragment?.let { unlockUserScreen(it) }
-
         checkForWinnerAndNavigateToStart()
     }
 
@@ -199,6 +204,7 @@ object Controller : IController {
 
         val imgId : Int = setUserImgId(row, col)
 
+        // logic
         gameState.getNextPlayer()
         gameState.listOfMoves.add(Pair(row,col))
         gameState = gameState.updateGameState()
@@ -222,7 +228,7 @@ object Controller : IController {
     private fun checkForWinnerAndNavigateToStart(){
         if(fragment is IGameScreenView) {
             val gameScreenFragment = fragment as IGameScreenView
-            var gameState : GameState = settings.gameState
+            val gameState : GameState = settings.gameState
             when (checkForWinner()) {
                 settings.firstPlayer -> {
                     // unlock game screen
@@ -252,8 +258,9 @@ object Controller : IController {
     }
 
     private fun setUserImgId(row: Int, col: Int) : Int{
-        var gameState : GameState = settings.gameState
+        val gameState : GameState = settings.gameState
         val gameScreenFragment = fragment as IGameScreenView
+
         return when(gameState.currentTurn().cellType){
             CellType.CROSS -> {
                 gameState.setCell(Cell(
@@ -274,6 +281,31 @@ object Controller : IController {
                 CellTypeImg.CIRCLE_BLACK.id
             }
             else -> throw IllegalStateException()
+        }
+    }
+
+    override fun playAgentWithDelay(timeMill: Long){
+        CoroutineScope(Main).launch {
+
+            fragment?.let { it ->
+                // lock user from input on cells
+                lockUserScreen(it)
+                // display progress bar on the screen
+                setProgressBarVisibility(it, VISIBLE)
+            }
+
+            // wait second
+            delay(timeMill)
+
+            // agent make a move
+            playAgent()
+
+            fragment?.let { it ->
+                // hide progressbar on the screen
+                setProgressBarVisibility(it, INVISIBLE)
+                // unlock input for user
+                unlockUserScreen(it)
+            }
         }
     }
 }

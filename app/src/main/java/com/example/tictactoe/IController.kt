@@ -12,11 +12,13 @@ interface IController {
     fun onCellSelected(row : Int, col : Int)
     fun playUser(row: Int, col: Int)
     fun playAgent()
+    fun playAgentWithDelay(timeMill: Long)
     fun checkForWinner() : PlayerData?
     fun setFragment(fragment: Any)
     fun setGameType(gameType: String)
     fun createGameBasedOnTypeGame()
-    fun inflateWinner(firstPlayer: PlayerData)
+    fun inflateWinner(winPlayer: PlayerData)
     fun lockUserScreen(view: View)
     fun unlockUserScreen(view: View)
+    fun setProgressBarVisibility(view:View, name: String)
 }

@@ -187,6 +187,19 @@
 
         </GridLayout>
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@android:style/Widget.DeviceDefault.Light.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/progress_bar_margin_side"
+            android:layout_marginEnd="@dimen/progress_bar_margin_side"
+            app:layout_constraintBottom_toBottomOf="@+id/currentPlayer"
+            app:layout_constraintEnd_toStartOf="@+id/currentPlayerImg"
+            app:layout_constraintStart_toEndOf="@+id/currentPlayer"
+            app:layout_constraintTop_toTopOf="@+id/currentPlayer"
+            android:visibility="invisible"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

@@ -10,4 +10,5 @@ interface IGameScreenView : View {
     fun restoreViewFromController()
     fun setFragmentClickable(name: String)
     fun setTurnImg(imgId: Int)
+    fun setProgressBarVisibility(name: String)
 }

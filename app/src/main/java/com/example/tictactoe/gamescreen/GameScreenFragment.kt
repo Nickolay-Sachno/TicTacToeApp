@@ -102,6 +102,14 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         binding.currentPlayerImg.setImageResource(imgId)
     }
 
+    override fun setProgressBarVisibility(name: String) {
+        binding.progressBar.visibility = when(name){
+            "visible" -> View.VISIBLE
+            "invisible" -> View.INVISIBLE
+            else -> throw IllegalArgumentException()
+        }
+    }
+
     private fun lockCells(){
         binding.apply {
             imageView00.isEnabled = false
