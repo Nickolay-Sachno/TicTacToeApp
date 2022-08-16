@@ -64,7 +64,6 @@ class GameScreenFragment : Fragment(), IGameScreenView {
             delay(2000)
             try{
                 activity?.onBackPressed()
-                //findNavController().navigate(R.id.action_gameScreenFragment_to_entryFragment)
             } catch(e : Exception ){
                 return@launch
             }
