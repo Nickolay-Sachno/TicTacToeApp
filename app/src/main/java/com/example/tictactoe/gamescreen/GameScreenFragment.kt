@@ -1,5 +1,7 @@
 package com.example.tictactoe.gamescreen
 
+import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -25,6 +27,11 @@ class GameScreenFragment : Fragment(), IGameScreenView {
     ): View? {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_game_screen, container, false)
+
+        // Listener for Move Helper Button
+        binding.nextMoveHelper.setOnClickListener{
+            this.context?.let { context : Context -> nextMoveBtnClicked(context) }
+        }
 
         // set the view based on the Controller Settings
         if(!Controller.settings.gameState.grid.isEmpty())
@@ -92,8 +99,14 @@ class GameScreenFragment : Fragment(), IGameScreenView {
 
     override fun setFragmentClickable(name: String){
         when(name){
-            "LOCK" -> lockCells()
-            "UNLOCK" -> unlockCells()
+            "LOCK" -> {
+                lockCells()
+                lockNextMoveBtn()
+            }
+            "UNLOCK" -> {
+                unlockCells()
+                unlockNextMoveBtn()
+            }
         }
     }
 
@@ -107,6 +120,24 @@ class GameScreenFragment : Fragment(), IGameScreenView {
             "invisible" -> View.INVISIBLE
             "gone" -> View.GONE
             else -> throw IllegalArgumentException()
+        }
+    }
+
+    override fun nextMoveBtnClicked(context: Context) {
+        Controller.getNextMoveHelpFromApi(context)
+    }
+
+    override fun setCellBoardBackgroundColor(row: Int, col: Int, color: Int) {
+        when("$row,$col"){
+            "0,0" -> binding.imageView00.setBackgroundColor(color)
+            "0,1" -> binding.imageView01.setBackgroundColor(color)
+            "0,2" -> binding.imageView02.setBackgroundColor(color)
+            "1,0" -> binding.imageView10.setBackgroundColor(color)
+            "1,1" -> binding.imageView11.setBackgroundColor(color)
+            "1,2" -> binding.imageView12.setBackgroundColor(color)
+            "2,0" -> binding.imageView20.setBackgroundColor(color)
+            "2,1" -> binding.imageView21.setBackgroundColor(color)
+            "2,2" -> binding.imageView22.setBackgroundColor(color)
         }
     }
 
@@ -136,5 +167,13 @@ class GameScreenFragment : Fragment(), IGameScreenView {
             imageView21.isEnabled = true
             imageView22.isEnabled = true
         }
+    }
+
+    private fun lockNextMoveBtn(){
+        binding.nextMoveHelper.isEnabled = false
+    }
+
+    private fun unlockNextMoveBtn(){
+        binding.nextMoveHelper.isEnabled = true
     }
 }

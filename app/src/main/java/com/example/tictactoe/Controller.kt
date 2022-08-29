@@ -5,15 +5,26 @@ import GameState
 import Grid
 import Player
 import User
+import android.accounts.NetworkErrorException
+import android.content.Context
+import android.graphics.Color
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.util.Log
+import android.widget.Toast
 import com.example.tictactoe.entry.IEntryView
 import com.example.tictactoe.enum.GameType
 import com.example.tictactoe.gamescreen.IGameScreenView
+import com.example.tictactoe.networking.RestClient
+import com.example.tictactoe.networking.Result
 import com.example.tictactoe.settings.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 
@@ -165,6 +176,84 @@ object Controller : IController {
         }
     }
 
+    override fun getNextMoveHelpFromApi(context: Context) {
+
+        val gameScreenFragment = fragment as IGameScreenView
+
+
+        // Check for Internet connection
+        if (!isOnline(context)){
+            Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show()
+            gameScreenFragment.setFragmentClickable(UNLOCK)
+            return
+        }
+        try {
+
+            val game : String = removeNewLineAndSpaces(settings.gameState.toString())
+            val turn = settings.gameState.currentTurn().cellType.chr.toString()
+
+            val call : Call<Result> =
+                RestClient.movesService.getNextMove(game, turn)
+            call.enqueue(object: Callback<Result> {
+                override fun onFailure(call: Call<Result>, t: Throwable) {
+                    throw NetworkErrorException()
+                }
+                override fun onResponse(call: Call<Result>, response: Response<Result>) {
+                    Log.i("ENTRY", "Finished with the response:\n${response.body()}")
+                    val (row : Int, col : Int) = responseRecommendationToCoordinates(response.body()?.recommendation)
+                    gameScreenFragment.setCellBoardBackgroundColor(row,col, Color.GREEN)
+                    CoroutineScope(Main).launch {
+                        gameScreenFragment.setProgressBarVisibility(VISIBLE)
+                        gameScreenFragment.setFragmentClickable(LOCK)
+
+                        delay(AGENT_DELAY_MOVE_TIME)
+
+                        gameScreenFragment.setProgressBarVisibility(INVISIBLE)
+                        gameScreenFragment.setFragmentClickable(UNLOCK)
+                        gameScreenFragment.setCellBoardBackgroundColor(row,col, Color.WHITE)
+                    }
+                }
+            })
+        } catch (e : Exception){
+            Log.e("CONTROLLER", e.toString())
+        }
+    }
+
+    private fun responseRecommendationToCoordinates(recommendation: Int?): Pair<Int, Int> {
+        return when(recommendation){
+            0 -> Pair(0,0)
+            1 -> Pair(0,1)
+            2 -> Pair(0,2)
+            3 -> Pair(1,0)
+            4 -> Pair(1,1)
+            5 -> Pair(1,2)
+            6 -> Pair(2,0)
+            7 -> Pair(2,1)
+            8 -> Pair(2,2)
+            else -> Pair(0,0)
+        }
+    }
+
+    override fun isOnline(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+                return true
+            }
+        }
+        return false
+    }
+
     override fun playAgent() {
 
         var gameState : GameState = settings.gameState
@@ -299,5 +388,15 @@ object Controller : IController {
                 unlockUserScreen(it)
             }
         }
+    }
+
+    private fun removeNewLineAndSpaces(str: String) : String{
+        var returnString = ""
+        for( i in str.indices){
+            if(str[i].toString() == "-" || str[i].toString() == "X" || str[i].toString() == "O"){
+                returnString += str[i]
+            }
+        }
+        return returnString
     }
 }

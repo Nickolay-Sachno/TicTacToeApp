@@ -51,8 +51,8 @@
             android:layout_marginBottom="@dimen/grid_layout_margin_bottom"
             android:background="@drawable/grid_img"
             android:columnCount="3"
-            android:rowCount="3"
             android:orientation="horizontal"
+            android:rowCount="3"
             android:useDefaultMargins="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -199,6 +199,18 @@
             app:layout_constraintStart_toEndOf="@+id/currentPlayer"
             app:layout_constraintTop_toTopOf="@+id/currentPlayer"
             android:visibility="invisible"/>
+
+        <Button
+            android:id="@+id/next_move_helper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/next_move_helper_str"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/gridLayout"
+            app:layout_constraintStart_toStartOf="@+id/gridLayout"
+            app:layout_constraintTop_toBottomOf="@+id/gridLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

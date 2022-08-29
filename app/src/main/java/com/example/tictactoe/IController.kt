@@ -2,6 +2,7 @@ package com.example.tictactoe
 
 import GameState
 import Player
+import android.content.Context
 import com.example.tictactoe.settings.CellTypeImg
 import com.example.tictactoe.settings.PlayerData
 import com.example.tictactoe.settings.Settings
@@ -21,4 +22,6 @@ interface IController {
     fun lockUserScreen(view: View)
     fun unlockUserScreen(view: View)
     fun setProgressBarVisibility(view:View, name: String)
+    fun getNextMoveHelpFromApi(context: Context)
+    fun isOnline(context: Context) : Boolean
 }
