@@ -31,7 +31,7 @@ import java.lang.IllegalStateException
 
 private const val FIRST_PLAYER_WIN = "First Player Wins!"
 private const val SECOND_PLAYER_WINS = "Second Player Wins!"
-private const val STANDOFF  = "It's a Standoff"
+private const val STANDOFF = "It's a Standoff"
 
 private const val LOCK = "LOCK"
 private const val UNLOCK = "UNLOCK"
@@ -40,7 +40,9 @@ private const val VISIBLE = "visible"
 private const val INVISIBLE = "invisible"
 private const val GONE = "gone"
 
-private const val AGENT_DELAY_MOVE_TIME : Long = 1000
+// delays
+private const val AGENT_DELAY_MOVE_TIME: Long = 1000
+private const val SUGGESTED_MOVE_ANIM_DELAY_TIME: Long = 1500
 
 object Controller : IController {
 
@@ -178,44 +180,66 @@ object Controller : IController {
 
     override fun getNextMoveHelpFromApi(context: Context) {
 
+        val gameState : GameState = settings.gameState
         val gameScreenFragment = fragment as IGameScreenView
 
+        gameScreenFragment.setFragmentClickable(LOCK)
 
         // Check for Internet connection
         if (!isOnline(context)){
             Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show()
-            gameScreenFragment.setFragmentClickable(UNLOCK)
             return
         }
         try {
 
-            val game : String = removeNewLineAndSpaces(settings.gameState.toString())
-            val turn = settings.gameState.currentTurn().cellType.chr.toString()
+            val game : String = removeNewLineAndSpaces(gameState.toString())
+            val turn = gameState.currentTurn().cellType.chr.toString()
 
-            val call : Call<Result> =
+            apiCallForNextMove(game, turn)
+
+        } catch (e : Exception){
+            Log.e("CONTROLLER", e.toString())
+        } finally {
+            gameScreenFragment.setFragmentClickable(UNLOCK)
+        }
+    }
+
+    private fun apiCallForNextMove(game : String, turn: String) {
+        try {
+            val call: Call<Result> =
                 RestClient.movesService.getNextMove(game, turn)
-            call.enqueue(object: Callback<Result> {
+            call.enqueue(object : Callback<Result> {
                 override fun onFailure(call: Call<Result>, t: Throwable) {
                     throw NetworkErrorException()
                 }
+
                 override fun onResponse(call: Call<Result>, response: Response<Result>) {
                     Log.i("ENTRY", "Finished with the response:\n${response.body()}")
-                    val (row : Int, col : Int) = responseRecommendationToCoordinates(response.body()?.recommendation)
-                    gameScreenFragment.setCellBoardBackgroundColor(row,col, Color.GREEN)
-                    CoroutineScope(Main).launch {
-                        gameScreenFragment.setProgressBarVisibility(VISIBLE)
-                        gameScreenFragment.setFragmentClickable(LOCK)
 
-                        delay(AGENT_DELAY_MOVE_TIME)
+                    val (row: Int, col: Int) = responseRecommendationToCoordinates(response.body()?.recommendation)
 
-                        gameScreenFragment.setProgressBarVisibility(INVISIBLE)
-                        gameScreenFragment.setFragmentClickable(UNLOCK)
-                        gameScreenFragment.setCellBoardBackgroundColor(row,col, Color.WHITE)
-                    }
+                    animateSuggestedMoveOnBoard(row, col)
                 }
             })
-        } catch (e : Exception){
-            Log.e("CONTROLLER", e.toString())
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
+    private fun animateSuggestedMoveOnBoard(row: Int, col: Int){
+
+        val gameScreenFragment = fragment as IGameScreenView
+
+        CoroutineScope(Main).launch {
+            gameScreenFragment.setCellBoardBackgroundColor(row,col, Color.GREEN)
+            gameScreenFragment.setProgressBarVisibility(VISIBLE)
+            gameScreenFragment.setFragmentClickable(LOCK)
+
+            delay(SUGGESTED_MOVE_ANIM_DELAY_TIME)
+
+            gameScreenFragment.setProgressBarVisibility(INVISIBLE)
+            gameScreenFragment.setFragmentClickable(UNLOCK)
+            gameScreenFragment.setCellBoardBackgroundColor(row,col, Color.WHITE)
         }
     }
 
