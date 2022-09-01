@@ -21,7 +21,7 @@ interface IController {
     fun inflateWinner(winPlayer: PlayerData)
     fun lockUserScreen(view: View)
     fun unlockUserScreen(view: View)
-    fun setProgressBarVisibility(view:View, name: String)
+    fun setFragmentProgressBarVisibility(view:View?, name: String)
     fun getNextMoveHelpFromApi(context: Context)
     fun isOnline(context: Context) : Boolean
 }

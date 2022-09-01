@@ -172,7 +172,7 @@ object Controller : IController {
         }
     }
 
-    override fun setProgressBarVisibility(view:View, name: String) {
+    override fun setFragmentProgressBarVisibility(view:View?, name: String) {
         when(view){
             is IGameScreenView -> view.setProgressBarVisibility(name)
         }
@@ -191,8 +191,13 @@ object Controller : IController {
             return
         }
         try {
+            // start the animation of the progress bar
+            CoroutineScope(Main).launch{
+                setFragmentProgressBarVisibility(gameScreenFragment, VISIBLE)
+                delay(SUGGESTED_MOVE_ANIM_DELAY_TIME)
+            }
 
-            val game : String = removeNewLineAndSpaces(gameState.toString())
+            val game : String = getValidStringToApiCallFromGameState(gameState.toString())
             val turn = gameState.currentTurn().cellType.chr.toString()
 
             apiCallForNextMove(game, turn)
@@ -200,6 +205,7 @@ object Controller : IController {
         } catch (e : Exception){
             Log.e("CONTROLLER", e.toString())
         } finally {
+            setFragmentProgressBarVisibility(gameScreenFragment, INVISIBLE)
             gameScreenFragment.setFragmentClickable(UNLOCK)
         }
     }
@@ -218,6 +224,11 @@ object Controller : IController {
 
                     val (row: Int, col: Int) = responseRecommendationToCoordinates(response.body()?.recommendation)
 
+                    // start the animation of the progress bar
+                    CoroutineScope(Main).launch{
+                        setFragmentProgressBarVisibility(fragment, INVISIBLE)
+                    }
+
                     animateSuggestedMoveOnBoard(row, col)
                 }
             })
@@ -232,12 +243,10 @@ object Controller : IController {
 
         CoroutineScope(Main).launch {
             gameScreenFragment.setCellBoardBackgroundColor(row,col, Color.GREEN)
-            gameScreenFragment.setProgressBarVisibility(VISIBLE)
             gameScreenFragment.setFragmentClickable(LOCK)
 
             delay(SUGGESTED_MOVE_ANIM_DELAY_TIME)
 
-            gameScreenFragment.setProgressBarVisibility(INVISIBLE)
             gameScreenFragment.setFragmentClickable(UNLOCK)
             gameScreenFragment.setCellBoardBackgroundColor(row,col, Color.WHITE)
         }
@@ -396,7 +405,7 @@ object Controller : IController {
                 // lock user from input on cells
                 lockUserScreen(it)
                 // display progress bar on the screen
-                setProgressBarVisibility(it, VISIBLE)
+                setFragmentProgressBarVisibility(it, VISIBLE)
             }
 
             // wait second
@@ -407,14 +416,14 @@ object Controller : IController {
 
             fragment?.let { it ->
                 // hide progressbar on the screen
-                setProgressBarVisibility(it, INVISIBLE)
+                setFragmentProgressBarVisibility(it, INVISIBLE)
                 // unlock input for user
                 unlockUserScreen(it)
             }
         }
     }
 
-    private fun removeNewLineAndSpaces(str: String) : String{
+    private fun getValidStringToApiCallFromGameState(str: String) : String{
         var returnString = ""
         for( i in str.indices){
             if(str[i].toString() == "-" || str[i].toString() == "X" || str[i].toString() == "O"){
