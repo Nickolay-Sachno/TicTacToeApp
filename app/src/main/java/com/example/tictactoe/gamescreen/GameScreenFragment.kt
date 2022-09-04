@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 class GameScreenFragment : Fragment(), IGameScreenView {
     lateinit var binding: FragmentGameScreenBinding
-    lateinit var settings : Settings
+    lateinit var settings: Settings
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,12 +29,12 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_game_screen, container, false)
 
         // Listener for Move Helper Button
-        binding.nextMoveHelper.setOnClickListener{
-            this.context?.let { context : Context -> nextMoveBtnClicked(context) }
+        binding.nextMoveHelper.setOnClickListener {
+            this.context?.let { context: Context -> nextMoveBtnClicked(context) }
         }
 
         // set the view based on the Controller Settings
-        if(!Controller.settings.gameState.grid.isEmpty())
+        if (!Controller.settings.gameState.grid.isEmpty())
             restoreViewFromController()
 
         // inform the controller about the current fragment
@@ -47,12 +47,12 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         binding.fragment = this
     }
 
-    fun onGridSelected(row: Int, col: Int){
+    fun onGridSelected(row: Int, col: Int) {
         Controller.onCellSelected(row, col)
     }
 
     override fun setCellImg(row: Int, col: Int, imgId: Int) {
-        when("$row,$col"){
+        when ("$row,$col") {
             "0,0" -> binding.imageView00.setImageResource(imgId)
             "0,1" -> binding.imageView01.setImageResource(imgId)
             "0,2" -> binding.imageView02.setImageResource(imgId)
@@ -65,13 +65,13 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         }
     }
 
-    override fun navigateToStart(text:String) {
+    override fun navigateToStart(text: String) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
         CoroutineScope(Main).launch {
             delay(2000)
-            try{
+            try {
                 activity?.onBackPressed()
-            } catch(e : Exception ){
+            } catch (e: Exception) {
                 return@launch
             }
         }
@@ -80,11 +80,12 @@ class GameScreenFragment : Fragment(), IGameScreenView {
     override fun restoreViewFromController() {
         binding.apply {
             currentPlayerImg.setImageResource(
-                when(Controller.settings.gameState.currentTurn()){
+                when (Controller.settings.gameState.currentTurn()) {
                     Controller.settings.firstPlayer.player -> Controller.settings.firstPlayer.cellTypeImg.id
                     Controller.settings.secondPlayer.player -> Controller.settings.secondPlayer.cellTypeImg.id
                     else -> 0
-                })
+                }
+            )
             imageView00.setImageResource(Controller.settings.gridLayoutImgId[0][0])
             imageView01.setImageResource(Controller.settings.gridLayoutImgId[0][1])
             imageView02.setImageResource(Controller.settings.gridLayoutImgId[0][2])
@@ -97,8 +98,8 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         }
     }
 
-    override fun setFragmentClickable(name: String){
-        when(name){
+    override fun setFragmentClickable(name: String) {
+        when (name) {
             "LOCK" -> {
                 lockCells()
                 lockNextMoveBtn()
@@ -115,7 +116,7 @@ class GameScreenFragment : Fragment(), IGameScreenView {
     }
 
     override fun setProgressBarVisibility(name: String) {
-        binding.progressBar.visibility = when(name){
+        binding.progressBar.visibility = when (name) {
             "visible" -> View.VISIBLE
             "invisible" -> View.INVISIBLE
             "gone" -> View.GONE
@@ -128,7 +129,7 @@ class GameScreenFragment : Fragment(), IGameScreenView {
     }
 
     override fun setCellBoardBackgroundColor(row: Int, col: Int, color: Int) {
-        when("$row,$col"){
+        when ("$row,$col") {
             "0,0" -> binding.imageView00.setBackgroundColor(color)
             "0,1" -> binding.imageView01.setBackgroundColor(color)
             "0,2" -> binding.imageView02.setBackgroundColor(color)
@@ -141,7 +142,7 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         }
     }
 
-    private fun lockCells(){
+    private fun lockCells() {
         binding.apply {
             imageView00.isEnabled = false
             imageView01.isEnabled = false
@@ -155,7 +156,7 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         }
     }
 
-    private fun unlockCells(){
+    private fun unlockCells() {
         binding.apply {
             imageView00.isEnabled = true
             imageView01.isEnabled = true
@@ -169,11 +170,11 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         }
     }
 
-    private fun lockNextMoveBtn(){
+    private fun lockNextMoveBtn() {
         binding.nextMoveHelper.isEnabled = false
     }
 
-    private fun unlockNextMoveBtn(){
+    private fun unlockNextMoveBtn() {
         binding.nextMoveHelper.isEnabled = true
     }
 }
