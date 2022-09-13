@@ -12,6 +12,6 @@ object RestClient {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val movesService = retrofit.create(MovesService::class.java)
+    val movesService: MovesService = retrofit.create(MovesService::class.java)
 
 }

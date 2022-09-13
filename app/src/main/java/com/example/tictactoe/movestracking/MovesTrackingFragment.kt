@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +19,7 @@ class MovesTrackingFragment : Fragment(), IMovesTrackingView {
     private lateinit var binding: FragmentMovesTrackingBinding
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var adapter : RecyclerAdapter
+    private lateinit var viewModel: MovesTrackingViewModel
 
 
     override fun onCreateView(
@@ -33,6 +35,10 @@ class MovesTrackingFragment : Fragment(), IMovesTrackingView {
         binding.recyclerView.addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
         adapter = RecyclerAdapter(Controller.settings.listOfActions)
         binding.recyclerView.adapter = adapter
+
+        // init the view model
+        viewModel = ViewModelProvider(this)[MovesTrackingViewModel::class.java]
+
         return binding.root
     }
 }

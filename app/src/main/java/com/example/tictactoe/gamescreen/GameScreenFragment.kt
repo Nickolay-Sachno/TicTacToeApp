@@ -7,6 +7,7 @@ import android.view.*
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.databinding.FragmentGameScreenBinding
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 class GameScreenFragment : Fragment(), IGameScreenView {
     lateinit var binding: FragmentGameScreenBinding
     lateinit var settings: Settings
+    private lateinit var viewModel: GameScreenViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,6 +41,10 @@ class GameScreenFragment : Fragment(), IGameScreenView {
 
         // inform the controller about the current fragment
         Controller.setFragment(this)
+
+        // init the view model
+        viewModel = ViewModelProvider(this)[GameScreenViewModel::class.java]
+
         return binding.root
     }
 

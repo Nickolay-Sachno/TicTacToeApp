@@ -7,13 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.databinding.FragmentSettingsBinding
+import com.example.tictactoe.movestracking.MovesTrackingViewModel
 
 
 class SettingsFragment : Fragment(), ISettingsView {
     private lateinit var binding: FragmentSettingsBinding
+    private lateinit var viewModel: SettingsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +36,9 @@ class SettingsFragment : Fragment(), ISettingsView {
             AgentDifficulties.EASY.name -> { binding.switchDiff.isChecked = false}
             AgentDifficulties.MEDIUM.name -> {binding.switchDiff.isChecked = true}
         }
+
+        // init the view model
+        viewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
         return binding.root
     }
 

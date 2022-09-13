@@ -12,7 +12,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
 import android.widget.Toast
-import com.example.tictactoe.entry.IEntryView
+import com.example.tictactoe.entry.IWelcomeScreenView
 import com.example.tictactoe.enum.GameType
 import com.example.tictactoe.gamescreen.IGameScreenView
 import com.example.tictactoe.networking.RestClient
@@ -91,7 +91,7 @@ object Controller : IController {
 
     override fun setFragment(fragment: Any) {
         this.fragment = when(fragment){
-            is IEntryView -> fragment
+            is IWelcomeScreenView -> fragment
             is IGameScreenView -> fragment
             is ISettingsView -> fragment
             else -> throw IllegalArgumentException()
@@ -254,8 +254,8 @@ object Controller : IController {
 
     private fun responseRecommendationToCoordinates(recommendation: Int?): Pair<Int, Int> {
         return when(recommendation){
-            0 -> Pair(0,0)
-            1 -> Pair(0,1)
+            0 -> Pair(0,0) // (0,0).first -> 0
+            1 -> Pair(0,1) // (0,1).second -> 1
             2 -> Pair(0,2)
             3 -> Pair(1,0)
             4 -> Pair(1,1)
