@@ -14,6 +14,7 @@ import android.util.Log
 import android.widget.Toast
 import com.example.tictactoe.entry.IWelcomeScreenView
 import com.example.tictactoe.enum.GameType
+import com.example.tictactoe.gamescreen.GameScreenViewModel
 import com.example.tictactoe.gamescreen.IGameScreenView
 import com.example.tictactoe.networking.RestClient
 import com.example.tictactoe.networking.Result
@@ -48,6 +49,7 @@ object Controller : IController {
 
     var settings: Settings = Settings()
     var fragment: View? = null
+    lateinit var gameScreenViewModel: GameScreenViewModel
 
     override fun onCellSelected(row: Int, col: Int){
         val gameState : GameState = settings.gameState
@@ -305,7 +307,8 @@ object Controller : IController {
         gameState = gameState.updateGameState()
 
         // set turn img
-        gameScreenFragment.setTurnImg(CellTypeImg.CROSS_BLACK.id)
+        //gameScreenFragment.setTurnImg(CellTypeImg.CROSS_BLACK.id)
+        gameScreenViewModel.setCurrentTurnImg(CellTypeImg.CROSS_BLACK.id)
         // set grid cell img
         gameScreenFragment.setCellImg(row, col, imgId)
 
@@ -382,7 +385,8 @@ object Controller : IController {
                     col = col,
                     content = CellType.CROSS
                 ))
-                gameScreenFragment.setTurnImg(CellTypeImg.CIRCLE_BLACK.id)
+                //gameScreenFragment.setTurnImg(CellTypeImg.CIRCLE_BLACK.id)
+                gameScreenViewModel.setCurrentTurnImg(CellTypeImg.CIRCLE_BLACK.id)
                 CellTypeImg.CROSS_BLACK.id
             }
             CellType.CIRCLE -> {
@@ -391,7 +395,8 @@ object Controller : IController {
                     col = col,
                     content = CellType.CIRCLE
                 ))
-                gameScreenFragment.setTurnImg(CellTypeImg.CROSS_BLACK.id)
+                //gameScreenFragment.setTurnImg(CellTypeImg.CROSS_BLACK.id)
+                gameScreenViewModel.setCurrentTurnImg(CellTypeImg.CROSS_BLACK.id)
                 CellTypeImg.CIRCLE_BLACK.id
             }
             else -> throw IllegalStateException()

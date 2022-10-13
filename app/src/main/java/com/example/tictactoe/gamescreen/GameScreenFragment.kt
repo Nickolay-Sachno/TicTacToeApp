@@ -1,12 +1,12 @@
 package com.example.tictactoe.gamescreen
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.ArrayList
 
 
 class GameScreenFragment : Fragment(), IGameScreenView {
@@ -45,16 +46,43 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         // init the view model
         viewModel = ViewModelProvider(this)[GameScreenViewModel::class.java]
 
+        // create observers
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.fragment = this
+
+        // Observation
+        viewModel.apply {
+            currentTurnImgLiveData().observe(viewLifecycleOwner, Observer(::updateCurrentTurnImg))
+            gridLiveData().observe(viewLifecycleOwner, Observer(::updateGridImg))
+            isProgressBarVisibleLiveData().observe(viewLifecycleOwner, Observer(::updateProgressBar))
+            isGameScreenBlockedLiveData().observe(viewLifecycleOwner, Observer(::setFragmentClickable))
+        }
     }
 
-    fun onGridSelected(row: Int, col: Int) {
-        Controller.onCellSelected(row, col)
+    private fun updateProgressBar(isVisible: Boolean) {
+        if(isVisible){
+            binding.progressBar.visibility = View.VISIBLE
+        } else {
+            binding.progressBar.visibility = View.INVISIBLE
+        }
+    }
+
+    private fun updateCurrentTurnImg(imgId: Int) {
+        binding.currentPlayerImg.setImageResource(imgId)
+    }
+
+    private fun updateGridImg(point: Triple<Int, Int, Int>) {
+        setCellImg(point.first, point.second, point.third)
+    }
+
+    fun onGridCellSelected(row: Int, col: Int) {
+        viewModel.onCellClicked(row, col)
+        //Controller.onCellSelected(row, col)
     }
 
     override fun setCellImg(row: Int, col: Int, imgId: Int) {

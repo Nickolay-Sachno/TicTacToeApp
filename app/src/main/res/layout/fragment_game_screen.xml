@@ -70,7 +70,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/TicTacToe"
-                    android:onClick="@{() -> fragment.onGridSelected(0,0)}" />
+                    android:onClick="@{() -> fragment.onGridCellSelected(0,0)}" />
             </LinearLayout>
 
             <LinearLayout
@@ -84,7 +84,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/TicTacToe"
-                    android:onClick="@{() -> fragment.onGridSelected(0,1)}" />
+                    android:onClick="@{() -> fragment.onGridCellSelected(0,1)}" />
             </LinearLayout>
 
             <LinearLayout
@@ -98,7 +98,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/TicTacToe"
-                    android:onClick="@{() -> fragment.onGridSelected(0,2)}" />
+                    android:onClick="@{() -> fragment.onGridCellSelected(0,2)}" />
             </LinearLayout>
 
             <LinearLayout
@@ -112,7 +112,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/TicTacToe"
-                    android:onClick="@{() -> fragment.onGridSelected(1,0)}" />
+                    android:onClick="@{() -> fragment.onGridCellSelected(1,0)}" />
             </LinearLayout>
 
             <LinearLayout
@@ -126,7 +126,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/TicTacToe"
-                    android:onClick="@{() -> fragment.onGridSelected(1,1)}" />
+                    android:onClick="@{() -> fragment.onGridCellSelected(1,1)}" />
             </LinearLayout>
 
             <LinearLayout
@@ -140,7 +140,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/TicTacToe"
-                    android:onClick="@{() -> fragment.onGridSelected(1,2)}" />
+                    android:onClick="@{() -> fragment.onGridCellSelected(1,2)}" />
             </LinearLayout>
 
             <LinearLayout
@@ -154,7 +154,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/TicTacToe"
-                    android:onClick="@{() -> fragment.onGridSelected(2,0)}" />
+                    android:onClick="@{() -> fragment.onGridCellSelected(2,0)}" />
             </LinearLayout>
 
             <LinearLayout
@@ -168,7 +168,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/TicTacToe"
-                    android:onClick="@{() -> fragment.onGridSelected(2,1)}" />
+                    android:onClick="@{() -> fragment.onGridCellSelected(2,1)}" />
             </LinearLayout>
 
             <LinearLayout
@@ -182,7 +182,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/TicTacToe"
-                    android:onClick="@{() -> fragment.onGridSelected(2,2)}" />
+                    android:onClick="@{() -> fragment.onGridCellSelected(2,2)}" />
             </LinearLayout>
 
         </GridLayout>
