@@ -45,6 +45,7 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
     }
 
     private fun setClickableButtons(){
+        activity?.viewModelStore?.clear() //TODO Move to Welcome Screen VM
         binding.apply {
             playerVsPlayer.setOnClickListener{v : View ->
                 Controller.settings.typeGame = GameType.PLAYER_VS_PLAYER

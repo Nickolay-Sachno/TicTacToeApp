@@ -13,7 +13,6 @@ interface IController {
     fun onCellSelected(row : Int, col : Int)
     fun playUser(row: Int, col: Int)
     fun playAgent()
-    fun playAgentWithDelay(timeMill: Long)
     fun checkForWinner() : PlayerData?
     fun setFragment(fragment: Any)
     fun setGameType(gameType: String)

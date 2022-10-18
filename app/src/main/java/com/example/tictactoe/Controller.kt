@@ -49,24 +49,25 @@ object Controller : IController {
 
     var settings: Settings = Settings()
     var fragment: View? = null
-    lateinit var gameScreenViewModel: GameScreenViewModel
+    var winnerState: ArrayList<Triple<Int, Int, Int>> = arrayListOf()
+    var playerPlayedMove: ArrayList<Int> = arrayListOf()
+    var agentPlayedMove: ArrayList<Int> = arrayListOf()
+    var currentTurnImg: Int = CellTypeImg.CROSS_BLACK.id
 
     override fun onCellSelected(row: Int, col: Int){
         val gameState : GameState = settings.gameState
         // if the cell already been visited
         if(gameState.getCell(row,col).content != CellType.EMPTY) return
 
-        when(settings.typeGame){
-            GameType.PLAYER_VS_PLAYER -> playUser(row,col)
-            GameType.PLAYER_VS_AI -> {
-                playUser(row,col)
-                // if first player wins, ai shouldn't make a move
-                if(gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) || gameState.isStandOff()) {
-                    return
-                }
-                playAgentWithDelay(AGENT_DELAY_MOVE_TIME)
-            }
+        // if first player wins, ai shouldn't make a move
+        if(gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) || gameState.isStandOff()) {
+            return
         }
+    }
+
+    fun checkIfPlayerWinAgent(): Boolean{
+        val gameState : GameState = settings.gameState
+        return gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) || gameState.isStandOff()
     }
 
     override fun checkForWinner() : PlayerData?{
@@ -90,7 +91,7 @@ object Controller : IController {
         // there are still moves to make
         return null
     }
-
+    //TODO Move to View Model
     override fun setFragment(fragment: Any) {
         this.fragment = when(fragment){
             is IWelcomeScreenView -> fragment
@@ -141,45 +142,46 @@ object Controller : IController {
         // clear the Img grid
         settings.gridLayoutImgId = Array(3){IntArray(3)}
     }
-
+    //TODO Move to View Model
     override fun inflateWinner(winPlayer: PlayerData) {
-        if(fragment is IGameScreenView){
-            val gameScreenFragment = fragment as IGameScreenView
-            gameScreenFragment.apply {
-                setCellImg(
-                    settings.gameState.listOfWinMoves[0].first,
+
+        winnerState.apply {
+            add(
+                Triple(settings.gameState.listOfWinMoves[0].first,
                     settings.gameState.listOfWinMoves[0].second,
                     winPlayer.winCellTypeImg.id)
-                setCellImg(
-                    settings.gameState.listOfWinMoves[1].first,
+            )
+            add(
+                Triple(settings.gameState.listOfWinMoves[1].first,
                     settings.gameState.listOfWinMoves[1].second,
                     winPlayer.winCellTypeImg.id)
-                setCellImg(
-                    settings.gameState.listOfWinMoves[2].first,
+            )
+            add(
+                Triple(settings.gameState.listOfWinMoves[2].first,
                     settings.gameState.listOfWinMoves[2].second,
                     winPlayer.winCellTypeImg.id)
-            }
-        } else throw IllegalArgumentException()
+            )
+        }
     }
-
+    //TODO Move to View Model
     override fun lockUserScreen(view: View) {
         when(view){
             is IGameScreenView -> view.setFragmentClickable(LOCK)
         }
     }
-
+    //TODO Move to View Model
     override fun unlockUserScreen(view: View) {
         when(view){
             is IGameScreenView -> view.setFragmentClickable(UNLOCK)
         }
     }
-
+    //TODO Move to View Model
     override fun setFragmentProgressBarVisibility(view:View?, name: String) {
         when(view){
             is IGameScreenView -> view.setProgressBarVisibility(name)
         }
     }
-
+    //TODO Move to View Model
     override fun getNextMoveHelpFromApi(context: Context) {
 
         val gameState : GameState = settings.gameState
@@ -211,7 +213,7 @@ object Controller : IController {
             gameScreenFragment.setFragmentClickable(UNLOCK)
         }
     }
-
+    //TODO Move to View Model
     private fun apiCallForNextMove(game : String, turn: String) {
         try {
             val call: Call<Result> =
@@ -238,7 +240,7 @@ object Controller : IController {
             throw e
         }
     }
-
+    //TODO Move to View Model
     private fun animateSuggestedMoveOnBoard(row: Int, col: Int){
 
         val gameScreenFragment = fragment as IGameScreenView
@@ -288,7 +290,7 @@ object Controller : IController {
         }
         return false
     }
-
+    //TODO Move to View Model
     override fun playAgent() {
 
         var gameState : GameState = settings.gameState
@@ -308,9 +310,12 @@ object Controller : IController {
 
         // set turn img
         //gameScreenFragment.setTurnImg(CellTypeImg.CROSS_BLACK.id)
-        gameScreenViewModel.setCurrentTurnImg(CellTypeImg.CROSS_BLACK.id)
+        //gameScreenViewModel.setCurrentTurnImg(CellTypeImg.CROSS_BLACK.id)
+        currentTurnImg = CellTypeImg.CIRCLE_BLACK.id
         // set grid cell img
-        gameScreenFragment.setCellImg(row, col, imgId)
+        //gameScreenFragment.setCellImg(row, col, imgId)
+        //gameScreenViewModel.updateBoardImg(row, col, imgId)
+        agentPlayedMove = arrayListOf(row, col, imgId)
 
         // set cell img in the grid layout
         this.settings.gridLayoutImgId[row][col] = imgId
@@ -320,13 +325,12 @@ object Controller : IController {
 
         checkForWinnerAndNavigateToStart()
     }
-
+    //TODO Move to View Model
     override fun playUser(row: Int, col: Int) {
         // lock user from input on cells
-        fragment?.let { lockUserScreen(it) }
+        //fragment?.let { lockUserScreen(it) }
 
         var gameState : GameState = settings.gameState
-        val gameScreenFragment = fragment as IGameScreenView
 
         val imgId : Int = setUserImgId(row, col)
 
@@ -335,7 +339,7 @@ object Controller : IController {
         gameState.listOfMoves.add(Pair(row,col))
         gameState = gameState.updateGameState()
 
-        gameScreenFragment.setCellImg(row, col, imgId)
+        playerPlayedMove = arrayListOf(row, col, imgId)
 
         // set cell img in the grid layout
         this.settings.gridLayoutImgId[row][col] = imgId
@@ -343,14 +347,11 @@ object Controller : IController {
         // add current Game State to the history list
         settings.listOfActions.add(gameState)
 
-        // unlock input for user
-        fragment?.let { unlockUserScreen(it) }
-
         checkForWinnerAndNavigateToStart()
 
     }
 
-
+    //TODO Move to View Model
     private fun checkForWinnerAndNavigateToStart(){
         if(fragment is IGameScreenView) {
             val gameScreenFragment = fragment as IGameScreenView
@@ -373,10 +374,9 @@ object Controller : IController {
             throw IllegalArgumentException()
         }
     }
-
+    //TODO Move to View Model
     private fun setUserImgId(row: Int, col: Int) : Int{
         val gameState : GameState = settings.gameState
-        val gameScreenFragment = fragment as IGameScreenView
 
         return when(gameState.currentTurn().cellType){
             CellType.CROSS -> {
@@ -385,8 +385,7 @@ object Controller : IController {
                     col = col,
                     content = CellType.CROSS
                 ))
-                //gameScreenFragment.setTurnImg(CellTypeImg.CIRCLE_BLACK.id)
-                gameScreenViewModel.setCurrentTurnImg(CellTypeImg.CIRCLE_BLACK.id)
+                currentTurnImg = CellTypeImg.CIRCLE_BLACK.id
                 CellTypeImg.CROSS_BLACK.id
             }
             CellType.CIRCLE -> {
@@ -395,36 +394,10 @@ object Controller : IController {
                     col = col,
                     content = CellType.CIRCLE
                 ))
-                //gameScreenFragment.setTurnImg(CellTypeImg.CROSS_BLACK.id)
-                gameScreenViewModel.setCurrentTurnImg(CellTypeImg.CROSS_BLACK.id)
+                currentTurnImg = CellTypeImg.CROSS_BLACK.id
                 CellTypeImg.CIRCLE_BLACK.id
             }
             else -> throw IllegalStateException()
-        }
-    }
-
-    override fun playAgentWithDelay(timeMill: Long){
-        CoroutineScope(Main).launch {
-
-            fragment?.let { it ->
-                // lock user from input on cells
-                lockUserScreen(it)
-                // display progress bar on the screen
-                setFragmentProgressBarVisibility(it, VISIBLE)
-            }
-
-            // wait second
-            delay(timeMill)
-
-            // agent make a move
-            playAgent()
-
-            fragment?.let { it ->
-                // hide progressbar on the screen
-                setFragmentProgressBarVisibility(it, INVISIBLE)
-                // unlock input for user
-                unlockUserScreen(it)
-            }
         }
     }
 

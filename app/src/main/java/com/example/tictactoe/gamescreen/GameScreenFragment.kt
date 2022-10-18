@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tictactoe.Controller
@@ -22,7 +23,7 @@ import java.util.ArrayList
 class GameScreenFragment : Fragment(), IGameScreenView {
     lateinit var binding: FragmentGameScreenBinding
     lateinit var settings: Settings
-    private lateinit var viewModel: GameScreenViewModel
+    private val viewModel: GameScreenViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,18 +36,17 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         binding.nextMoveHelper.setOnClickListener {
             this.context?.let { context: Context -> nextMoveBtnClicked(context) }
         }
-
-        // set the view based on the Controller Settings
-        if (!Controller.settings.gameState.grid.isEmpty())
-            restoreViewFromController()
-
         // inform the controller about the current fragment
         Controller.setFragment(this)
 
-        // init the view model
-        viewModel = ViewModelProvider(this)[GameScreenViewModel::class.java]
-
-        // create observers
+        // Observation
+        viewModel.apply {
+            currentTurnImgLiveData().observe(viewLifecycleOwner, Observer(::updateCurrentTurnImg))
+            gridLiveData().observe(viewLifecycleOwner, Observer(::updateGridImg))
+            isProgressBarVisibleLiveData().observe(viewLifecycleOwner, Observer(::updateProgressBar))
+            isGameScreenBlockedLiveData().observe(viewLifecycleOwner, Observer(::setFragmentClickable))
+            boardImgLiveData().observe(viewLifecycleOwner, Observer(::updateBoardImg))
+        }
 
         return binding.root
     }
@@ -55,12 +55,13 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         super.onViewCreated(view, savedInstanceState)
         binding.fragment = this
 
-        // Observation
-        viewModel.apply {
-            currentTurnImgLiveData().observe(viewLifecycleOwner, Observer(::updateCurrentTurnImg))
-            gridLiveData().observe(viewLifecycleOwner, Observer(::updateGridImg))
-            isProgressBarVisibleLiveData().observe(viewLifecycleOwner, Observer(::updateProgressBar))
-            isGameScreenBlockedLiveData().observe(viewLifecycleOwner, Observer(::setFragmentClickable))
+    }
+
+    private fun updateBoardImg(board: Array<IntArray>){
+        for(row in board.indices){
+            for( col in board[0].indices){
+                setCellImg(row, col, board[row][col])
+            }
         }
     }
 
@@ -82,7 +83,6 @@ class GameScreenFragment : Fragment(), IGameScreenView {
 
     fun onGridCellSelected(row: Int, col: Int) {
         viewModel.onCellClicked(row, col)
-        //Controller.onCellSelected(row, col)
     }
 
     override fun setCellImg(row: Int, col: Int, imgId: Int) {
@@ -111,27 +111,6 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         }
     }
 
-    override fun restoreViewFromController() {
-        binding.apply {
-            currentPlayerImg.setImageResource(
-                when (Controller.settings.gameState.currentTurn()) {
-                    Controller.settings.firstPlayer.player -> Controller.settings.firstPlayer.cellTypeImg.id
-                    Controller.settings.secondPlayer.player -> Controller.settings.secondPlayer.cellTypeImg.id
-                    else -> 0
-                }
-            )
-            imageView00.setImageResource(Controller.settings.gridLayoutImgId[0][0])
-            imageView01.setImageResource(Controller.settings.gridLayoutImgId[0][1])
-            imageView02.setImageResource(Controller.settings.gridLayoutImgId[0][2])
-            imageView10.setImageResource(Controller.settings.gridLayoutImgId[1][0])
-            imageView11.setImageResource(Controller.settings.gridLayoutImgId[1][1])
-            imageView12.setImageResource(Controller.settings.gridLayoutImgId[1][2])
-            imageView20.setImageResource(Controller.settings.gridLayoutImgId[2][0])
-            imageView21.setImageResource(Controller.settings.gridLayoutImgId[2][1])
-            imageView22.setImageResource(Controller.settings.gridLayoutImgId[2][2])
-        }
-    }
-
     override fun setFragmentClickable(name: String) {
         when (name) {
             "LOCK" -> {
@@ -143,10 +122,6 @@ class GameScreenFragment : Fragment(), IGameScreenView {
                 unlockNextMoveBtn()
             }
         }
-    }
-
-    override fun setTurnImg(imgId: Int) {
-        binding.currentPlayerImg.setImageResource(imgId)
     }
 
     override fun setProgressBarVisibility(name: String) {

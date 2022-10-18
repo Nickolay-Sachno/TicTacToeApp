@@ -9,9 +9,7 @@ interface IGameScreenView : View {
 
     fun setCellImg(row:Int, col:Int, imgId: Int)
     fun navigateToStart(text : String)
-    fun restoreViewFromController()
     fun setFragmentClickable(name: String)
-    fun setTurnImg(imgId: Int)
     fun setProgressBarVisibility(name: String)
     fun nextMoveBtnClicked(context: Context)
     fun setCellBoardBackgroundColor(row: Int, col: Int, color: Int)
