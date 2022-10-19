@@ -26,9 +26,11 @@
             android:text="@string/turn_str"
             android:textSize="40sp"
             app:layout_constraintBottom_toTopOf="@+id/gridLayout"
+            app:layout_constraintEnd_toStartOf="@+id/currentPlayerImg"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/gridLayout"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.401" />
+            app:layout_constraintVertical_bias="0.0" />
 
         <ImageView
             android:id="@+id/currentPlayerImg"
@@ -38,7 +40,8 @@
             app:layout_constraintEnd_toEndOf="@+id/gridLayout"
             app:layout_constraintTop_toTopOf="@+id/currentPlayer"
             app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/x_img_black"/>
+            app:srcCompat="@drawable/x_img_black"
+            android:contentDescription="TODO" />
 
 
         <GridLayout
@@ -53,6 +56,9 @@
             android:columnCount="3"
             android:orientation="horizontal"
             android:rowCount="3"
+            android:layout_columnWeight="1.2"
+            android:layout_rowWeight="1.2"
+            android:layout_gravity="fill_horizontal"
             android:useDefaultMargins="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -1,26 +1,33 @@
 package com.example.tictactoe.gamescreen
 
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.tictactoe.Controller
+import com.example.tictactoe.database.GameStateData
+import com.example.tictactoe.database.GameStateDatabase
+import com.example.tictactoe.database.GameStateDatabaseDao
 import com.example.tictactoe.entry.WelcomeScreenViewModel
 import com.example.tictactoe.enum.GameType
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Main
 
 
 // delays
 private const val AGENT_DELAY_MOVE_TIME: Long = 1000
 
-class GameScreenViewModel : ViewModel() {
+class GameScreenViewModel(
+) : ViewModel() {
 
     private val LOCK: String = "LOCK"
     private val UNLOCK: String = "UNLOCK"
     private var board: Array<IntArray> = Array(3){IntArray(3)}
     lateinit var welcomeScreenViewModel: WelcomeScreenViewModel
+    lateinit var database: GameStateDatabaseDao
+
+//    private val gameStateKey: Long = 0L,
 
     private val currentTurnImgMutableLiveData: MutableLiveData<Int> by lazy {
         MutableLiveData<Int >()
@@ -42,11 +49,20 @@ class GameScreenViewModel : ViewModel() {
         MutableLiveData<Array<IntArray>>()
     }
 
+    private val insertDatabaseMutableLiveData: MutableLiveData<String> by lazy{
+        MutableLiveData<String>()
+    }
+
     fun currentTurnImgLiveData() : LiveData<Int> = currentTurnImgMutableLiveData
     fun gridLiveData() : LiveData<Triple<Int, Int, Int>> = gridMutableLiveData
     fun isProgressBarVisibleLiveData() : LiveData<Boolean> = isProgressBarVisibleMutableLiveData
     fun isGameScreenBlockedLiveData() : LiveData<String> = fragmentLockStatusMutableLiveData
     fun boardImgLiveData() : LiveData<Array<IntArray>> = boardImgMutableLiveData
+    fun insertDatabaseLiveData(): LiveData<String> = insertDatabaseMutableLiveData
+
+    fun insertDatabaseLiveData(toast: String){
+        insertDatabaseMutableLiveData.postValue(toast)
+    }
 
 
     private fun setCurrentTurnImg(imgId: Int){
@@ -75,6 +91,16 @@ class GameScreenViewModel : ViewModel() {
                     Controller.winnerState = arrayListOf()
                     return
                 }
+                CoroutineScope(Job()).launch {
+                    database.insert(GameStateData(
+                        currentTurn = Controller.settings.gameState.currentTurn().cellType.chr.toString(),
+                        board = Controller.settings.gameState.toString()
+                    ))
+                }
+
+                insertDatabaseLiveData("Inserted:\ncurrent turn: ${
+                    Controller.settings.gameState.currentTurn().cellType.chr
+                }\nboard:\n${Controller.settings.gameState}")
             }
             GameType.PLAYER_VS_AI -> {
                 // Player turn
@@ -129,5 +155,15 @@ class GameScreenViewModel : ViewModel() {
         boardImgMutableLiveData.postValue(board)
         fragmentLockStatusMutableLiveData.postValue(UNLOCK)
     }
+
+//    fun onSaveGameState(gameState: String){
+//        viewModelScope.launch {
+//            val currentGameState = database.get(gameStateKey) ?: return@launch
+//            currentGameState.board = Controller.getValidStringToApiCallFromGameState(Controller.settings.gameState.toString())
+//            currentGameState.currentTurn = Controller.settings.gameState.currentTurn().cellType.chr.toString()
+//
+//            database.update(currentGameState)
+//        }
+//    }
 
 }

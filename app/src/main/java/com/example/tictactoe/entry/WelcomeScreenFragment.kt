@@ -18,7 +18,6 @@ import com.example.tictactoe.gamescreen.GameScreenViewModel
 class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
 
     private lateinit var binding:FragmentEntryBinding
-    private lateinit var viewModel: WelcomeScreenViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,7 +31,6 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
         Controller.setFragment(this)
 
         // init the view model
-        viewModel = ViewModelProvider(this)[WelcomeScreenViewModel::class.java]
 
         return binding.root
     }

@@ -11,6 +11,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
+import com.example.tictactoe.database.GameStateDatabase
+import com.example.tictactoe.database.GameStateDatabaseDao
 import com.example.tictactoe.databinding.FragmentGameScreenBinding
 import com.example.tictactoe.settings.Settings
 import kotlinx.coroutines.CoroutineScope
@@ -46,9 +48,16 @@ class GameScreenFragment : Fragment(), IGameScreenView {
             isProgressBarVisibleLiveData().observe(viewLifecycleOwner, Observer(::updateProgressBar))
             isGameScreenBlockedLiveData().observe(viewLifecycleOwner, Observer(::setFragmentClickable))
             boardImgLiveData().observe(viewLifecycleOwner, Observer(::updateBoardImg))
+            insertDatabaseLiveData().observe(viewLifecycleOwner, Observer(::printToast))
         }
 
+        viewModel.database = GameStateDatabase.getInstance(requireNotNull(this.activity).application)!!.gameStateDatabaseDao
+
         return binding.root
+    }
+
+    private fun printToast(toast: String) {
+        Toast.makeText(context, toast, Toast.LENGTH_SHORT).show()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

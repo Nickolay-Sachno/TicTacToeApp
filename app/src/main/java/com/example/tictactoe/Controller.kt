@@ -401,7 +401,7 @@ object Controller : IController {
         }
     }
 
-    private fun getValidStringToApiCallFromGameState(str: String) : String{
+     fun getValidStringToApiCallFromGameState(str: String) : String{
         var returnString = ""
         for( i in str.indices){
             if(str[i].toString() == "-" || str[i].toString() == "X" || str[i].toString() == "O"){
