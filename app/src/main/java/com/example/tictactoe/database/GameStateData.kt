@@ -13,5 +13,5 @@ data class GameStateData(
     var currentTurn: String = "",
 
     @ColumnInfo(name = "board")
-    var board: String = ""
+    var gameState: String = ""
 )

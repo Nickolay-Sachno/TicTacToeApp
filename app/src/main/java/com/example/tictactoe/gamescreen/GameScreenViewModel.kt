@@ -1,5 +1,6 @@
 package com.example.tictactoe.gamescreen
 
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,6 +12,10 @@ import com.example.tictactoe.database.GameStateDatabase
 import com.example.tictactoe.database.GameStateDatabaseDao
 import com.example.tictactoe.entry.WelcomeScreenViewModel
 import com.example.tictactoe.enum.GameType
+import com.example.tictactoe.settings.CellBridge
+import com.example.tictactoe.settings.GameStateBridge
+import com.example.tictactoe.settings.GridBridge
+import com.example.tictactoe.settings.PlayerBridge
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
 
@@ -23,7 +28,7 @@ class GameScreenViewModel(
 
     private val LOCK: String = "LOCK"
     private val UNLOCK: String = "UNLOCK"
-    private var board: Array<IntArray> = Array(3){IntArray(3)}
+    var board: Array<IntArray> = Array(3){IntArray(3)}
     lateinit var database: GameStateDatabaseDao
 
 //    private val gameStateKey: Long = 0L,
@@ -64,7 +69,7 @@ class GameScreenViewModel(
     }
 
 
-    private fun setCurrentTurnImg(imgId: Int){
+    fun setCurrentTurnImg(imgId: Int){
         currentTurnImgMutableLiveData.postValue(imgId)
     }
 
@@ -94,11 +99,33 @@ class GameScreenViewModel(
                     }
                     return
                 }
+                // Prep Game State For Database and insert it
                 CoroutineScope(Job()).launch {
+                    val gameStateBridge: GameStateBridge = GameStateBridge(
+                        grid = GridBridge(
+                            dim = 3,
+                            matrix = kotlin.run {
+                                List(3) { row ->
+                                    List(3) { col ->
+                                        CellBridge(row, col, Controller.settings.gameState.grid.matrix[row][col].content)
+                                    }
+                                }
+                            }
+                        ),
+                        notVisitedCell = CellBridge(content = Controller.settings.gameState.notVisitedCell.content),
+                        listOfPlayers = mutableListOf<PlayerBridge>().apply {
+                            add(PlayerBridge(Controller.settings.gameState.listOfPlayers[0].cellType))
+                            add(PlayerBridge(Controller.settings.gameState.listOfPlayers[1].cellType))
+                        },
+                        listOfMoves = Controller.settings.gameState.listOfMoves
+                    )
                     database.insert(GameStateData(
-                        currentTurn = Controller.settings.gameState.currentTurn().cellType.chr.toString(),
-                        board = Controller.settings.gameState.toString()
+                        currentTurn = Controller.settings.gameState.currentTurn().cellType.name,
+                        gameState = Controller.fromGameStateBridgeToString(gameStateBridge)
                     ))
+
+                    Log.i("MODEL", "Inserted to DB:\n${Controller.settings.gameState.currentTurn().cellType.name}" +
+                            "\n${Controller.fromGameStateBridgeToString(gameStateBridge)}")
                 }
 
                 insertDatabaseLiveData("Inserted:\ncurrent turn: ${
@@ -117,6 +144,32 @@ class GameScreenViewModel(
                 // update the UI
                 updateBoardImg()
                 setCurrentTurnImg(Controller.currentTurnImg)
+
+                // Prep Game State For Database and insert it
+                CoroutineScope(Job()).launch {
+                    val gameStateBridge: GameStateBridge = GameStateBridge(
+                        grid = GridBridge(
+                            dim = 3,
+                            matrix = kotlin.run {
+                                List(3) { row ->
+                                    List(3) { col ->
+                                        CellBridge(row, col, Controller.settings.gameState.grid.matrix[row][col].content)
+                                    }
+                                }
+                            }
+                        ),
+                        notVisitedCell = CellBridge(content = Controller.settings.gameState.notVisitedCell.content),
+                        listOfPlayers = mutableListOf<PlayerBridge>().apply {
+                            add(PlayerBridge(Controller.settings.gameState.listOfPlayers[0].cellType))
+                            add(PlayerBridge(Controller.settings.gameState.listOfPlayers[1].cellType))
+                        },
+                        listOfMoves = Controller.settings.gameState.listOfMoves
+                    )
+                    database.insert(GameStateData(
+                        currentTurn = Controller.settings.gameState.currentTurn().cellType.name,
+                        gameState = Controller.fromGameStateBridgeToString(gameStateBridge)
+                    ))
+                }
 
                 // if first player wins, ai shouldn't make a move
                 if(Controller.checkIfPlayerWinAgent()){
@@ -154,11 +207,37 @@ class GameScreenViewModel(
                 }
                 Controller.agentPlayedMove = arrayListOf()
                 setCurrentTurnImg(Controller.currentTurnImg)
+
+                // Prep Game State For Database and insert it
+                CoroutineScope(Job()).launch {
+                    val gameStateBridge: GameStateBridge = GameStateBridge(
+                        grid = GridBridge(
+                            dim = 3,
+                            matrix = kotlin.run {
+                                List(3) { row ->
+                                    List(3) { col ->
+                                        CellBridge(row, col, Controller.settings.gameState.grid.matrix[row][col].content)
+                                    }
+                                }
+                            }
+                        ),
+                        notVisitedCell = CellBridge(content = Controller.settings.gameState.notVisitedCell.content),
+                        listOfPlayers = mutableListOf<PlayerBridge>().apply {
+                            add(PlayerBridge(Controller.settings.gameState.listOfPlayers[0].cellType))
+                            add(PlayerBridge(Controller.settings.gameState.listOfPlayers[1].cellType))
+                        },
+                        listOfMoves = Controller.settings.gameState.listOfMoves
+                    )
+                    database.insert(GameStateData(
+                        currentTurn = Controller.settings.gameState.currentTurn().cellType.chr.toString(),
+                        gameState = Controller.fromGameStateBridgeToString(gameStateBridge)
+                    ))
+                }
             }
         }
     }
 
-    private fun updateBoardImg() {
+    fun updateBoardImg() {
         boardImgMutableLiveData.postValue(board)
         fragmentLockStatusMutableLiveData.postValue(UNLOCK)
     }

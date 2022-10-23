@@ -19,6 +19,7 @@ import com.example.tictactoe.gamescreen.IGameScreenView
 import com.example.tictactoe.networking.RestClient
 import com.example.tictactoe.networking.Result
 import com.example.tictactoe.settings.*
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -409,5 +410,13 @@ object Controller : IController {
             }
         }
         return returnString
+    }
+
+    fun fromStringToGameStateBridge(str: String): GameStateBridge{
+        return Gson().fromJson(str, GameStateBridge::class.java)
+    }
+
+    fun fromGameStateBridgeToString(gameStateBridge: GameStateBridge): String{
+        return Gson().toJson(gameStateBridge)
     }
 }

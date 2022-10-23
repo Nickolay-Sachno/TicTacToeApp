@@ -15,7 +15,7 @@ interface GameStateDatabaseDao {
     fun update(gameStateData: GameStateData)
 
     @Query("SELECT * from game_state_table WHERE gameStateId = :key")
-    fun get(key: Long): GameStateData?
+    fun get(key: Long): GameStateData
 
     @Query("DELETE FROM game_state_table")
     fun clear()
@@ -24,5 +24,5 @@ interface GameStateDatabaseDao {
     fun getAllGameStates(): List<GameStateData>
 
     @Query("SELECT * FROM game_state_table ORDER BY gameStateId DESC LIMIT 1")
-    fun getLatestGameState(): GameStateData?
+    fun getLatestGameState(): GameStateData
 }
