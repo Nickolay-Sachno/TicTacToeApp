@@ -24,7 +24,6 @@ class GameScreenViewModel(
     private val LOCK: String = "LOCK"
     private val UNLOCK: String = "UNLOCK"
     private var board: Array<IntArray> = Array(3){IntArray(3)}
-    lateinit var welcomeScreenViewModel: WelcomeScreenViewModel
     lateinit var database: GameStateDatabaseDao
 
 //    private val gameStateKey: Long = 0L,
@@ -89,6 +88,10 @@ class GameScreenViewModel(
                     board[Controller.winnerState[2].first][Controller.winnerState[2].second] = Controller.winnerState[0].third
                     updateBoardImg()
                     Controller.winnerState = arrayListOf()
+
+                    CoroutineScope(Job()).launch {
+                        database.clear()
+                    }
                     return
                 }
                 CoroutineScope(Job()).launch {
@@ -124,13 +127,17 @@ class GameScreenViewModel(
                         board[Controller.winnerState[2].first][Controller.winnerState[2].second] = Controller.winnerState[0].third
                         updateBoardImg()
                         Controller.winnerState = arrayListOf()
+
+                        CoroutineScope(Job()).launch {
+                            database.clear()
+                        }
                         return
                     }
                 }
 
                 // Agent turn
                 fragmentLockStatusMutableLiveData.postValue(LOCK)
-                CoroutineScope(Dispatchers.Main).launch {
+                CoroutineScope(Main).launch {
 
                     isProgressBarVisibleMutableLiveData.postValue(true)
 
