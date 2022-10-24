@@ -295,7 +295,6 @@ object Controller : IController {
     override fun playAgent() {
 
         var gameState : GameState = settings.gameState
-        val gameScreenFragment = fragment as IGameScreenView
 
         val currentPlayer = gameState.getNextPlayer()
         val imgId = CellTypeImg.CIRCLE_BLACK.id
@@ -310,12 +309,8 @@ object Controller : IController {
         gameState = gameState.updateGameState()
 
         // set turn img
-        //gameScreenFragment.setTurnImg(CellTypeImg.CROSS_BLACK.id)
-        //gameScreenViewModel.setCurrentTurnImg(CellTypeImg.CROSS_BLACK.id)
         currentTurnImg = CellTypeImg.CIRCLE_BLACK.id
         // set grid cell img
-        //gameScreenFragment.setCellImg(row, col, imgId)
-        //gameScreenViewModel.updateBoardImg(row, col, imgId)
         agentPlayedMove = arrayListOf(row, col, imgId)
 
         // set cell img in the grid layout

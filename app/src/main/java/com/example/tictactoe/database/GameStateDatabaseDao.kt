@@ -20,7 +20,7 @@ interface GameStateDatabaseDao {
     @Query("DELETE FROM game_state_table")
     fun clear()
 
-    @Query("SELECT * FROM game_state_table ORDER BY gameStateId DESC")
+    @Query("SELECT * FROM game_state_table ORDER BY gameStateId ASC")
     fun getAllGameStates(): List<GameStateData>
 
     @Query("SELECT * FROM game_state_table ORDER BY gameStateId DESC LIMIT 1")

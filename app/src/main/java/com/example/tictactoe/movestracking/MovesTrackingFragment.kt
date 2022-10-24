@@ -1,11 +1,16 @@
 package com.example.tictactoe.movestracking
 
+import GameState
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.Observable
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -13,13 +18,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.databinding.FragmentMovesTrackingBinding
+import com.example.tictactoe.gamescreen.GameScreenViewModel
 
 class MovesTrackingFragment : Fragment(), IMovesTrackingView {
 
     private lateinit var binding: FragmentMovesTrackingBinding
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var adapter : RecyclerAdapter
-    private lateinit var viewModel: MovesTrackingViewModel
+    private val viewModel: GameScreenViewModel by activityViewModels()
 
 
     override fun onCreateView(
@@ -37,7 +43,7 @@ class MovesTrackingFragment : Fragment(), IMovesTrackingView {
         binding.recyclerView.adapter = adapter
 
         // init the view model
-        viewModel = ViewModelProvider(this)[MovesTrackingViewModel::class.java]
+        //viewModel = ViewModelProvider(this)[MovesTrackingViewModel::class.java]
 
         return binding.root
     }

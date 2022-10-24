@@ -1,6 +1,7 @@
 package com.example.tictactoe.movestracking
 
 import GameState
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ class RecyclerAdapter(private var items: MutableList<GameState>) : RecyclerView.
 
     override fun onBindViewHolder(holder: RecycleViewHolder, position: Int) {
         holder.apply {
+            Log.i("Recycler Adapter", "items:\n${items[position].listOfMoves}")
             grid.text = items[position].grid.toString()
             move.text = items[position].listOfMoves[position].toString()
             player.text = "Player: ${items[position].listOfPlayers[1].cellType}"

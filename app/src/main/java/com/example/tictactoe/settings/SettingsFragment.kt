@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.databinding.FragmentSettingsBinding
-import com.example.tictactoe.movestracking.MovesTrackingViewModel
 
 
 class SettingsFragment : Fragment(), ISettingsView {

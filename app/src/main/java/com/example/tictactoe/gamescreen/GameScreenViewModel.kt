@@ -1,16 +1,13 @@
 package com.example.tictactoe.gamescreen
 
+import GameState
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.tictactoe.Controller
 import com.example.tictactoe.database.GameStateData
-import com.example.tictactoe.database.GameStateDatabase
 import com.example.tictactoe.database.GameStateDatabaseDao
-import com.example.tictactoe.entry.WelcomeScreenViewModel
 import com.example.tictactoe.enum.GameType
 import com.example.tictactoe.settings.CellBridge
 import com.example.tictactoe.settings.GameStateBridge
@@ -240,6 +237,31 @@ class GameScreenViewModel(
     fun updateBoardImg() {
         boardImgMutableLiveData.postValue(board)
         fragmentLockStatusMutableLiveData.postValue(UNLOCK)
+    }
+
+    fun createGameBasedOnType(gameType: GameType){
+        when(gameType){
+            GameType.PLAYER_VS_PLAYER -> Controller.settings.typeGame = GameType.PLAYER_VS_PLAYER
+            GameType.PLAYER_VS_AI -> Controller.settings.typeGame = GameType.PLAYER_VS_AI
+        }
+        Controller.createGameBasedOnTypeGame()
+    }
+
+    fun updateControllerGameState(gameState: GameState) {
+        Controller.settings.gameState = gameState
+    }
+
+    fun updateListOfActions(){
+        Log.i("VIEW MODEL", "Update List of Actions() ")
+        val listOfActions: MutableList<GameState> = mutableListOf()
+
+        CoroutineScope(Job()).launch{
+            database.getAllGameStates().forEach{gameStateData ->
+                listOfActions.add(Controller.fromStringToGameStateBridge(gameStateData.gameState).getGameStateBridgeFromGameState().deepCopy())
+            }
+
+            Controller.settings.listOfActions = listOfActions
+        }
     }
 
 //    fun onSaveGameState(gameState: String){
