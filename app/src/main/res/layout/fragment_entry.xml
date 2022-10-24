@@ -37,7 +37,7 @@
             app:layout_constraintVertical_bias="0.16" />
 
         <Button
-            android:id="@+id/resume"
+            android:id="@+id/restore_game"
             android:layout_width="0dp"
             android:layout_height="@dimen/entry_button_height"
             android:text="@string/resume"

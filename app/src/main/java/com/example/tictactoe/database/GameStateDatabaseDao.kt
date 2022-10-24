@@ -18,7 +18,7 @@ interface GameStateDatabaseDao {
     fun get(key: Long): GameStateData
 
     @Query("DELETE FROM game_state_table")
-    fun clear()
+    suspend fun clear()
 
     @Query("SELECT * FROM game_state_table ORDER BY gameStateId ASC")
     fun getAllGameStates(): List<GameStateData>

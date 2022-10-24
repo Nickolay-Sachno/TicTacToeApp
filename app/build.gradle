@@ -85,4 +85,6 @@ dependencies {
 
     // android lifecycle
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+
+    implementation "androidx.room:room-ktx:$version_room" // for coroutines support
 }

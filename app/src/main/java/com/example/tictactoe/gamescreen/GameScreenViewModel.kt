@@ -20,8 +20,7 @@ import kotlinx.coroutines.Dispatchers.Main
 // delays
 private const val AGENT_DELAY_MOVE_TIME: Long = 1000
 
-class GameScreenViewModel(
-) : ViewModel() {
+class GameScreenViewModel() : ViewModel() {
 
     private val LOCK: String = "LOCK"
     private val UNLOCK: String = "UNLOCK"
