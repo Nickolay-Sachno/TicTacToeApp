@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 
 class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
 
-    private lateinit var binding:FragmentEntryBinding
+    private lateinit var binding: FragmentEntryBinding
     private val viewModel: GameScreenViewModel by activityViewModels()
     private lateinit var gameState: GameState
     private val model: WelcomeScreenViewModel by activityViewModels()
@@ -37,10 +37,12 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_entry, container, false)
 
-        viewModel.database = GameStateDatabase.getInstance(requireNotNull(this.activity).application)!!.gameStateDatabaseDao
-        model.database = GameStateDatabase.getInstance(requireNotNull(this.activity).application)!!.gameStateDatabaseDao
+        viewModel.database =
+            GameStateDatabase.getInstance(requireNotNull(this.activity).application)!!.gameStateDatabaseDao
+        model.database =
+            GameStateDatabase.getInstance(requireNotNull(this.activity).application)!!.gameStateDatabaseDao
 
-        val uiStateObserver = Observer<WelcomeScreenUiState> {newState ->
+        val uiStateObserver = Observer<WelcomeScreenUiState> { newState ->
             binding.apply {
                 playerVsPlayer.visibility = newState.playerVsPlayerVisibility
                 playerVsAi.visibility = newState.playerVsAiVisibility
@@ -53,10 +55,6 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
         // update the current fragment in the controller
         Controller.setFragment(this)
 
-        // init the view model
-        //TODO Move to the View Model
-        createGameStateFromDB()
-
         return binding.root
     }
 
@@ -65,33 +63,26 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
         // setting up clickable buttons
         setClickableButtons()
         Controller.createGameBasedOnTypeGame()
-
-
     }
 
-    private fun setClickableButtons(){
+    private fun setClickableButtons() {
         binding.apply {
-            playerVsPlayer.setOnClickListener{v : View ->
+            playerVsPlayer.setOnClickListener { v: View ->
                 model.playerVsPlayerClicked()
-                v.findNavController().navigate(WelcomeScreenFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
+                v.findNavController()
+                    .navigate(WelcomeScreenFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
             }
-            playerVsAi.setOnClickListener {v : View ->
+            playerVsAi.setOnClickListener { v: View ->
                 model.playerVsAiClicked()
-                v.findNavController().navigate(WelcomeScreenFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
+                v.findNavController()
+                    .navigate(WelcomeScreenFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
             }
-            settings.setOnClickListener {v : View ->
-                v.findNavController().navigate(WelcomeScreenFragmentDirections.actionEntryFragmentToSettingsFragment())
+            settings.setOnClickListener { v: View ->
+                v.findNavController()
+                    .navigate(WelcomeScreenFragmentDirections.actionEntryFragmentToSettingsFragment())
             }
-            restoreGame.setOnClickListener{v: View ->
-                for(row in 0..2){
-                    for(col in 0..2){
-                        viewModel.board[row][col] = when(gameState.getCell(row, col).content){
-                            CellType.CROSS -> CellTypeImg.CROSS_BLACK.id
-                            CellType.CIRCLE -> CellTypeImg.CIRCLE_BLACK.id
-                            else -> {0}
-                        }
-                    }
-                }
+            restoreGame.setOnClickListener { v: View ->
+                model.restoreGameClicked()
                 viewModel.apply {
                     createGameBasedOnType(GameType.PLAYER_VS_PLAYER)
                     updateBoardImg()
@@ -101,27 +92,9 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
                 }
                 //Controller.settings.gameState = gameState
                 Log.i("WELCOME SCREEN", "Current Game State:\n${Controller.settings.gameState}")
-                v.findNavController().navigate(WelcomeScreenFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
+                v.findNavController()
+                    .navigate(WelcomeScreenFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
             }
-        }
-    }
-
-    private fun createGameStateFromDB() {
-        CoroutineScope(Job()).launch{
-            if(viewModel.database.getAllGameStates().isNotEmpty()){
-                binding.restoreGame.visibility = View.VISIBLE
-                val gameStateBridgeString = viewModel.database.getLatestGameState().gameState
-                val gameStateBridge = Controller.fromStringToGameStateBridge(gameStateBridgeString)
-                gameState = gameStateBridge.getGameStateBridgeFromGameState()
-                Controller.currentTurnImg = when(viewModel.database.getLatestGameState().currentTurn){
-                    CellType.CROSS.name -> CellTypeImg.CROSS_BLACK.id
-                    else -> CellTypeImg.CIRCLE_BLACK.id
-                }
-                Controller.settings.gameState = gameState.deepCopy()
-            } else {
-                Log.i("Game States in the Database: ", "No Game States found")
-            }
-
         }
     }
 }

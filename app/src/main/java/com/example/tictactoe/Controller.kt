@@ -14,7 +14,6 @@ import android.util.Log
 import android.widget.Toast
 import com.example.tictactoe.entry.IWelcomeScreenView
 import com.example.tictactoe.enum.GameType
-import com.example.tictactoe.gamescreen.GameScreenViewModel
 import com.example.tictactoe.gamescreen.IGameScreenView
 import com.example.tictactoe.networking.RestClient
 import com.example.tictactoe.networking.Result
@@ -54,6 +53,8 @@ object Controller : IController {
     var playerPlayedMove: ArrayList<Int> = arrayListOf()
     var agentPlayedMove: ArrayList<Int> = arrayListOf()
     var currentTurnImg: Int = CellTypeImg.CROSS_BLACK.id
+
+    val controllerData: ControllerData = ControllerData()
 
     override fun onCellSelected(row: Int, col: Int){
         val gameState : GameState = settings.gameState
@@ -116,7 +117,7 @@ object Controller : IController {
     // updates the game state based on settings
     override fun createGameBasedOnTypeGame() {
         // create players based on game type and agent difficulty
-        when(this.settings.typeGame){
+        when(this.controllerData.gameType){
             GameType.PLAYER_VS_PLAYER -> {
                 settings.secondPlayer = UserData(
                     player = User(cellType = CellType.CIRCLE),
@@ -291,6 +292,19 @@ object Controller : IController {
         }
         return false
     }
+
+    override fun updateCurrentTurnImg(gameStateCurrentTurnImg: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateGameState(gameState: GameState) {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateGameType(playerVsPlayer: GameType) {
+        TODO("Not yet implemented")
+    }
+
     //TODO Move to View Model
     override fun playAgent() {
 
@@ -415,3 +429,23 @@ object Controller : IController {
         return Gson().toJson(gameStateBridge)
     }
 }
+
+data class ControllerData(
+    val settings: SettingsData = SettingsData(),
+    val gameType: GameType = GameType.PLAYER_VS_AI,
+    val firstPlayer : PlayerData = UserData(),
+    val secondPlayer : PlayerData = AgentData(),
+    val listOfActions : MutableList<GameState> = mutableListOf(),
+    val gameState: GameState = GameState(
+        grid = Grid(3),
+        listOfPlayers = mutableListOf(firstPlayer.player, secondPlayer.player),
+        notVisitedCell = Cell(),
+        listOfMoves = mutableListOf()
+    ),
+    // var for recreating the Game Screen Fragment
+    val gridLayoutImgId: Array<IntArray> = Array(3){IntArray(3)},
+    val winnerState: ArrayList<Triple<Int, Int, Int>> = arrayListOf(),
+    val playerPlayedMove: ArrayList<Int> = arrayListOf(),
+    val agentPlayedMove: ArrayList<Int> = arrayListOf(),
+    val currentTurnImg: Int = CellTypeImg.CROSS_BLACK.id
+)
