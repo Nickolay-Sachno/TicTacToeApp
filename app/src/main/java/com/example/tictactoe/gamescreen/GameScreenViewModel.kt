@@ -2,6 +2,7 @@ package com.example.tictactoe.gamescreen
 
 import GameState
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,10 +10,7 @@ import com.example.tictactoe.Controller
 import com.example.tictactoe.database.GameStateData
 import com.example.tictactoe.database.GameStateDatabaseDao
 import com.example.tictactoe.enum.GameType
-import com.example.tictactoe.settings.CellBridge
-import com.example.tictactoe.settings.GameStateBridge
-import com.example.tictactoe.settings.GridBridge
-import com.example.tictactoe.settings.PlayerBridge
+import com.example.tictactoe.settings.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
 
@@ -26,6 +24,7 @@ class GameScreenViewModel() : ViewModel() {
     private val UNLOCK: String = "UNLOCK"
     var board: Array<IntArray> = Array(3){IntArray(3)}
     lateinit var database: GameStateDatabaseDao
+    val gameScreenUIState: GameScreenUIState = GameScreenUIState()
 
 //    private val gameStateKey: Long = 0L,
 
@@ -53,6 +52,10 @@ class GameScreenViewModel() : ViewModel() {
         MutableLiveData<String>()
     }
 
+    val gameScreenUIStateMutableData: MutableLiveData<GameScreenUIState> by lazy{
+        MutableLiveData<GameScreenUIState>()
+    }
+
     fun currentTurnImgLiveData() : LiveData<Int> = currentTurnImgMutableLiveData
     fun gridLiveData() : LiveData<Triple<Int, Int, Int>> = gridMutableLiveData
     fun isProgressBarVisibleLiveData() : LiveData<Boolean> = isProgressBarVisibleMutableLiveData
@@ -71,7 +74,7 @@ class GameScreenViewModel() : ViewModel() {
 
     fun onCellClicked(row: Int, col: Int) {
         Controller.onCellSelected(row, col)
-        when(Controller.settings.typeGame){
+        when(Controller.controllerData.gameType){
             GameType.PLAYER_VS_PLAYER -> {
                 // Player turn
                 fragmentLockStatusMutableLiveData.postValue(LOCK)
@@ -103,30 +106,30 @@ class GameScreenViewModel() : ViewModel() {
                             matrix = kotlin.run {
                                 List(3) { row ->
                                     List(3) { col ->
-                                        CellBridge(row, col, Controller.settings.gameState.grid.matrix[row][col].content)
+                                        CellBridge(row, col, Controller.controllerData.gameState.grid.matrix[row][col].content)
                                     }
                                 }
                             }
                         ),
-                        notVisitedCell = CellBridge(content = Controller.settings.gameState.notVisitedCell.content),
+                        notVisitedCell = CellBridge(content = Controller.controllerData.gameState.notVisitedCell.content),
                         listOfPlayers = mutableListOf<PlayerBridge>().apply {
-                            add(PlayerBridge(Controller.settings.gameState.listOfPlayers[0].cellType))
-                            add(PlayerBridge(Controller.settings.gameState.listOfPlayers[1].cellType))
+                            add(PlayerBridge(Controller.controllerData.gameState.listOfPlayers[0].cellType))
+                            add(PlayerBridge(Controller.controllerData.gameState.listOfPlayers[1].cellType))
                         },
-                        listOfMoves = Controller.settings.gameState.listOfMoves
+                        listOfMoves = Controller.controllerData.gameState.listOfMoves
                     )
                     database.insert(GameStateData(
-                        currentTurn = Controller.settings.gameState.currentTurn().cellType.name,
+                        currentTurn = Controller.controllerData.gameState.currentTurn().cellType.name,
                         gameState = Controller.fromGameStateBridgeToString(gameStateBridge)
                     ))
 
-                    Log.i("MODEL", "Inserted to DB:\n${Controller.settings.gameState.currentTurn().cellType.name}" +
+                    Log.i("MODEL", "Inserted to DB:\n${Controller.controllerData.gameState.currentTurn().cellType.name}" +
                             "\n${Controller.fromGameStateBridgeToString(gameStateBridge)}")
                 }
 
                 insertDatabaseLiveData("Inserted:\ncurrent turn: ${
-                    Controller.settings.gameState.currentTurn().cellType.chr
-                }\nboard:\n${Controller.settings.gameState}")
+                    Controller.controllerData.gameState.currentTurn().cellType.chr
+                }\nboard:\n${Controller.controllerData.gameState}")
             }
             GameType.PLAYER_VS_AI -> {
                 // Player turn
@@ -149,20 +152,20 @@ class GameScreenViewModel() : ViewModel() {
                             matrix = kotlin.run {
                                 List(3) { row ->
                                     List(3) { col ->
-                                        CellBridge(row, col, Controller.settings.gameState.grid.matrix[row][col].content)
+                                        CellBridge(row, col, Controller.controllerData.gameState.grid.matrix[row][col].content)
                                     }
                                 }
                             }
                         ),
-                        notVisitedCell = CellBridge(content = Controller.settings.gameState.notVisitedCell.content),
+                        notVisitedCell = CellBridge(content = Controller.controllerData.gameState.notVisitedCell.content),
                         listOfPlayers = mutableListOf<PlayerBridge>().apply {
-                            add(PlayerBridge(Controller.settings.gameState.listOfPlayers[0].cellType))
-                            add(PlayerBridge(Controller.settings.gameState.listOfPlayers[1].cellType))
+                            add(PlayerBridge(Controller.controllerData.gameState.listOfPlayers[0].cellType))
+                            add(PlayerBridge(Controller.controllerData.gameState.listOfPlayers[1].cellType))
                         },
-                        listOfMoves = Controller.settings.gameState.listOfMoves
+                        listOfMoves = Controller.controllerData.gameState.listOfMoves
                     )
                     database.insert(GameStateData(
-                        currentTurn = Controller.settings.gameState.currentTurn().cellType.name,
+                        currentTurn = Controller.controllerData.gameState.currentTurn().cellType.name,
                         gameState = Controller.fromGameStateBridgeToString(gameStateBridge)
                     ))
                 }
@@ -212,20 +215,20 @@ class GameScreenViewModel() : ViewModel() {
                             matrix = kotlin.run {
                                 List(3) { row ->
                                     List(3) { col ->
-                                        CellBridge(row, col, Controller.settings.gameState.grid.matrix[row][col].content)
+                                        CellBridge(row, col, Controller.controllerData.gameState.grid.matrix[row][col].content)
                                     }
                                 }
                             }
                         ),
-                        notVisitedCell = CellBridge(content = Controller.settings.gameState.notVisitedCell.content),
+                        notVisitedCell = CellBridge(content = Controller.controllerData.gameState.notVisitedCell.content),
                         listOfPlayers = mutableListOf<PlayerBridge>().apply {
-                            add(PlayerBridge(Controller.settings.gameState.listOfPlayers[0].cellType))
-                            add(PlayerBridge(Controller.settings.gameState.listOfPlayers[1].cellType))
+                            add(PlayerBridge(Controller.controllerData.gameState.listOfPlayers[0].cellType))
+                            add(PlayerBridge(Controller.controllerData.gameState.listOfPlayers[1].cellType))
                         },
-                        listOfMoves = Controller.settings.gameState.listOfMoves
+                        listOfMoves = Controller.controllerData.gameState.listOfMoves
                     )
                     database.insert(GameStateData(
-                        currentTurn = Controller.settings.gameState.currentTurn().cellType.chr.toString(),
+                        currentTurn = Controller.controllerData.gameState.currentTurn().cellType.chr.toString(),
                         gameState = Controller.fromGameStateBridgeToString(gameStateBridge)
                     ))
                 }
@@ -238,16 +241,8 @@ class GameScreenViewModel() : ViewModel() {
         fragmentLockStatusMutableLiveData.postValue(UNLOCK)
     }
 
-    fun createGameBasedOnType(gameType: GameType){
-        when(gameType){
-            GameType.PLAYER_VS_PLAYER -> Controller.settings.typeGame = GameType.PLAYER_VS_PLAYER
-            GameType.PLAYER_VS_AI -> Controller.settings.typeGame = GameType.PLAYER_VS_AI
-        }
-        Controller.createGameBasedOnTypeGame()
-    }
-
     fun updateControllerGameState(gameState: GameState) {
-        Controller.settings.gameState = gameState
+        Controller.updateGameState(gameState)
     }
 
     fun updateListOfActions(){
@@ -259,18 +254,34 @@ class GameScreenViewModel() : ViewModel() {
                 listOfActions.add(Controller.fromStringToGameStateBridge(gameStateData.gameState).getGameStateBridgeFromGameState().deepCopy())
             }
 
-            Controller.settings.listOfActions = listOfActions
+            Controller.updateListOfActions(listOfActions)
         }
     }
 
-//    fun onSaveGameState(gameState: String){
-//        viewModelScope.launch {
-//            val currentGameState = database.get(gameStateKey) ?: return@launch
-//            currentGameState.board = Controller.getValidStringToApiCallFromGameState(Controller.settings.gameState.toString())
-//            currentGameState.currentTurn = Controller.settings.gameState.currentTurn().cellType.chr.toString()
-//
-//            database.update(currentGameState)
-//        }
-//    }
+    data class GameScreenUIState(
+        val currentTurnImg: Int = CellTypeImg.CROSS_BLACK.id,
+        val boardImg: Board = Board(),
+        val progressBarVisibility: Int = View.INVISIBLE,
+        val lockScreen: Boolean = false
+    )
+
+    data class Board(
+        val boardImg: Array<IntArray> = Array(3){IntArray(3)}
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Board
+
+            if (!boardImg.contentDeepEquals(other.boardImg)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return boardImg.contentDeepHashCode()
+        }
+    }
 
 }

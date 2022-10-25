@@ -28,6 +28,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
+import kotlin.reflect.typeOf
 
 
 private const val FIRST_PLAYER_WIN = "First Player Wins!"
@@ -54,36 +55,36 @@ object Controller : IController {
     var agentPlayedMove: ArrayList<Int> = arrayListOf()
     var currentTurnImg: Int = CellTypeImg.CROSS_BLACK.id
 
-    val controllerData: ControllerData = ControllerData()
+    var controllerData: ControllerData = ControllerData()
 
     override fun onCellSelected(row: Int, col: Int){
-        val gameState : GameState = settings.gameState
+        val gameState : GameState = controllerData.gameState
         // if the cell already been visited
         if(gameState.getCell(row,col).content != CellType.EMPTY) return
 
         // if first player wins, ai shouldn't make a move
-        if(gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) || gameState.isStandOff()) {
+        if(gameState.isWinState(Cell(content = controllerData.firstPlayer.player.cellType)) || gameState.isStandOff()) {
             return
         }
     }
 
     fun checkIfPlayerWinAgent(): Boolean{
-        val gameState : GameState = settings.gameState
-        return gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) || gameState.isStandOff()
+        val gameState : GameState = controllerData.gameState
+        return gameState.isWinState(Cell(content = controllerData.firstPlayer.player.cellType)) || gameState.isStandOff()
     }
 
     override fun checkForWinner() : PlayerData?{
-        val gameState : GameState = settings.gameState
+        val gameState : GameState = controllerData.gameState
 
         when{
             // first player wins
-            gameState.isWinState(Cell(content = settings.firstPlayer.player.cellType)) -> {
-                inflateWinner(settings.firstPlayer)
-                return settings.firstPlayer}
+            gameState.isWinState(Cell(content = controllerData.firstPlayer.player.cellType)) -> {
+                inflateWinner(controllerData.firstPlayer)
+                return controllerData.firstPlayer}
             // second player wins
-            gameState.isWinState(Cell(content = settings.secondPlayer.player.cellType)) -> {
-                inflateWinner(settings.secondPlayer)
-                return settings.secondPlayer
+            gameState.isWinState(Cell(content = controllerData.secondPlayer.player.cellType)) -> {
+                inflateWinner(controllerData.secondPlayer)
+                return controllerData.secondPlayer
             }
             // standoff
             gameState.isStandOff() -> {
@@ -104,14 +105,14 @@ object Controller : IController {
     }
 
     override fun setGameType(gameType: String) {
-        settings.typeGame = when(gameType){
+        updateGameType(when(gameType){
             GameType.PLAYER_VS_PLAYER.name -> GameType.PLAYER_VS_PLAYER
             GameType.PLAYER_VS_AI.name -> GameType.PLAYER_VS_AI
             else -> {
                 // default game type
                 GameType.PLAYER_VS_PLAYER
             }
-        }
+        })
     }
 
     // updates the game state based on settings
@@ -119,48 +120,97 @@ object Controller : IController {
         // create players based on game type and agent difficulty
         when(this.controllerData.gameType){
             GameType.PLAYER_VS_PLAYER -> {
-                settings.secondPlayer = UserData(
+                updateSecondPlayer(UserData(
                     player = User(cellType = CellType.CIRCLE),
                     cellTypeImg = CellTypeImg.CIRCLE_BLACK,
                     winCellTypeImg = CellTypeImg.CIRCLE_RED
-                )
+                ))
             }
             GameType.PLAYER_VS_AI -> {
-                settings.secondPlayer.player = Agent.createAgent(
-                    cellType = CellType.CIRCLE,
-                    diff = settings.difficulty
-                ) as Player
+                updateSecondPlayer(AgentData(
+                    player = Agent.createAgent(
+                        cellType = CellType.CIRCLE,
+                        diff = controllerData.settings.agentDifficulty
+                    ) as Player
+                ))
             }
         }
-        settings.gameState = GameState(
+        updateGameState(GameState(
             grid = Grid(3),
-            listOfPlayers = mutableListOf(this.settings.firstPlayer.player, this.settings.secondPlayer.player),
+            listOfPlayers = mutableListOf(this.controllerData.firstPlayer.player, this.controllerData.secondPlayer.player),
             notVisitedCell = Cell(),
             listOfMoves = mutableListOf()
-        )
-
-        settings.listOfActions = mutableListOf()
-
-        // clear the Img grid
-        settings.gridLayoutImgId = Array(3){IntArray(3)}
+        ))
     }
+
+    private fun updateGridLayoutImgId(gridLayoutImgId: Array<IntArray>) {
+        controllerData = ControllerData(
+            settings = controllerData.settings,
+            gameType = controllerData.gameType,
+            firstPlayer = controllerData.firstPlayer,
+            secondPlayer = controllerData.secondPlayer,
+            listOfActions = controllerData.listOfActions,
+            gameState = controllerData.gameState,
+            gridLayoutImgId = gridLayoutImgId,
+            winnerState = controllerData.winnerState,
+            playerPlayedMove = controllerData.playerPlayedMove,
+            agentPlayedMove = controllerData.agentPlayedMove,
+            currentTurnImg = controllerData.currentTurnImg
+        )
+    }
+
+    fun updateListOfActions(listOfActions: MutableList<GameState>) {
+        controllerData = ControllerData(
+            settings = controllerData.settings,
+            gameType = controllerData.gameType,
+            firstPlayer = controllerData.firstPlayer,
+            secondPlayer = controllerData.secondPlayer,
+            listOfActions = listOfActions,
+            gameState = controllerData.gameState,
+            gridLayoutImgId = controllerData.gridLayoutImgId,
+            winnerState = controllerData.winnerState,
+            playerPlayedMove = controllerData.playerPlayedMove,
+            agentPlayedMove = controllerData.agentPlayedMove,
+            currentTurnImg = controllerData.currentTurnImg
+        )
+    }
+
+    private fun updateSecondPlayer(secondPlayer: PlayerData) {
+        controllerData = ControllerData(
+            settings = controllerData.settings,
+            gameType = controllerData.gameType,
+            firstPlayer = controllerData.firstPlayer,
+            secondPlayer = secondPlayer,
+            listOfActions = controllerData.listOfActions,
+            gameState = controllerData.gameState,
+            gridLayoutImgId = controllerData.gridLayoutImgId,
+            winnerState = controllerData.winnerState,
+            playerPlayedMove = controllerData.playerPlayedMove,
+            agentPlayedMove = controllerData.agentPlayedMove,
+            currentTurnImg = controllerData.currentTurnImg
+        )
+    }
+
     //TODO Move to View Model
     override fun inflateWinner(winPlayer: PlayerData) {
 
         winnerState.apply {
             add(
-                Triple(settings.gameState.listOfWinMoves[0].first,
-                    settings.gameState.listOfWinMoves[0].second,
+                Triple(
+                    controllerData.gameState.listOfWinMoves[0].first,
+                    controllerData.gameState.listOfWinMoves[0].second,
                     winPlayer.winCellTypeImg.id)
             )
             add(
-                Triple(settings.gameState.listOfWinMoves[1].first,
-                    settings.gameState.listOfWinMoves[1].second,
+                Triple(
+                    controllerData.gameState.listOfWinMoves[1].first,
+                    controllerData.gameState.listOfWinMoves[1].second,
                     winPlayer.winCellTypeImg.id)
             )
             add(
-                Triple(settings.gameState.listOfWinMoves[2].first,
-                    settings.gameState.listOfWinMoves[2].second,
+                Triple(
+                    controllerData.gameState.listOfWinMoves[2].first,
+                    controllerData.gameState.listOfWinMoves[2].second,
                     winPlayer.winCellTypeImg.id)
             )
         }
@@ -186,7 +236,7 @@ object Controller : IController {
     //TODO Move to View Model
     override fun getNextMoveHelpFromApi(context: Context) {
 
-        val gameState : GameState = settings.gameState
+        val gameState : GameState = controllerData.gameState
         val gameScreenFragment = fragment as IGameScreenView
 
         gameScreenFragment.setFragmentClickable(LOCK)
@@ -294,21 +344,57 @@ object Controller : IController {
     }
 
     override fun updateCurrentTurnImg(gameStateCurrentTurnImg: Int) {
-        TODO("Not yet implemented")
+        controllerData = ControllerData(
+            settings = controllerData.settings,
+            gameType = controllerData.gameType,
+            firstPlayer = controllerData.firstPlayer,
+            secondPlayer = controllerData.secondPlayer,
+            listOfActions = controllerData.listOfActions,
+            gameState = controllerData.gameState,
+            gridLayoutImgId = controllerData.gridLayoutImgId,
+            winnerState = controllerData.winnerState,
+            playerPlayedMove = controllerData.playerPlayedMove,
+            agentPlayedMove = controllerData.agentPlayedMove,
+            currentTurnImg = gameStateCurrentTurnImg
+        )
     }
 
     override fun updateGameState(gameState: GameState) {
-        TODO("Not yet implemented")
+        controllerData = ControllerData(
+            settings = controllerData.settings,
+            gameType = controllerData.gameType,
+            firstPlayer = controllerData.firstPlayer,
+            secondPlayer = controllerData.secondPlayer,
+            listOfActions = controllerData.listOfActions,
+            gameState = gameState,
+            gridLayoutImgId = controllerData.gridLayoutImgId,
+            winnerState = controllerData.winnerState,
+            playerPlayedMove = controllerData.playerPlayedMove,
+            agentPlayedMove = controllerData.agentPlayedMove,
+            currentTurnImg = controllerData.currentTurnImg
+        )
     }
 
-    override fun updateGameType(playerVsPlayer: GameType) {
-        TODO("Not yet implemented")
+    override fun updateGameType(gameType: GameType) {
+        controllerData = ControllerData(
+            settings = controllerData.settings,
+            gameType = gameType,
+            firstPlayer = controllerData.firstPlayer,
+            secondPlayer = controllerData.secondPlayer,
+            listOfActions = controllerData.listOfActions,
+            gameState = controllerData.gameState,
+            gridLayoutImgId = controllerData.gridLayoutImgId,
+            winnerState = controllerData.winnerState,
+            playerPlayedMove = controllerData.playerPlayedMove,
+            agentPlayedMove = controllerData.agentPlayedMove,
+            currentTurnImg = controllerData.currentTurnImg
+        )
     }
 
     //TODO Move to View Model
     override fun playAgent() {
 
-        var gameState : GameState = settings.gameState
+        var gameState : GameState = controllerData.gameState
 
         val currentPlayer = gameState.getNextPlayer()
         val imgId = CellTypeImg.CIRCLE_BLACK.id
@@ -328,10 +414,10 @@ object Controller : IController {
         agentPlayedMove = arrayListOf(row, col, imgId)
 
         // set cell img in the grid layout
-        this.settings.gridLayoutImgId[row][col] = imgId
+        controllerData.gridLayoutImgId[row][col] = imgId
 
         // add current Game State to the history list
-        settings.listOfActions.add(gameState)
+        controllerData.listOfActions.add(gameState)
 
         checkForWinnerAndNavigateToStart()
     }
@@ -340,7 +426,7 @@ object Controller : IController {
         // lock user from input on cells
         //fragment?.let { lockUserScreen(it) }
 
-        var gameState : GameState = settings.gameState
+        var gameState : GameState = controllerData.gameState
 
         val imgId : Int = setUserImgId(row, col)
 
@@ -352,10 +438,10 @@ object Controller : IController {
         playerPlayedMove = arrayListOf(row, col, imgId)
 
         // set cell img in the grid layout
-        this.settings.gridLayoutImgId[row][col] = imgId
+        controllerData.gridLayoutImgId[row][col] = imgId
 
         // add current Game State to the history list
-        settings.listOfActions.add(gameState)
+        controllerData.listOfActions.add(gameState)
 
         checkForWinnerAndNavigateToStart()
 
@@ -365,12 +451,12 @@ object Controller : IController {
     private fun checkForWinnerAndNavigateToStart(){
         if(fragment is IGameScreenView) {
             val gameScreenFragment = fragment as IGameScreenView
-            val gameState : GameState = settings.gameState
+            val gameState : GameState = controllerData.gameState
             when (checkForWinner()) {
-                settings.firstPlayer -> {
+                controllerData.firstPlayer -> {
                     gameScreenFragment.navigateToStart(FIRST_PLAYER_WIN)
                 }
-                settings.secondPlayer -> {
+                controllerData.secondPlayer -> {
                     gameScreenFragment.navigateToStart(SECOND_PLAYER_WINS)
                 }
                 else -> {
@@ -386,7 +472,7 @@ object Controller : IController {
     }
     //TODO Move to View Model
     private fun setUserImgId(row: Int, col: Int) : Int{
-        val gameState : GameState = settings.gameState
+        val gameState : GameState = controllerData.gameState
 
         return when(gameState.currentTurn().cellType){
             CellType.CROSS -> {

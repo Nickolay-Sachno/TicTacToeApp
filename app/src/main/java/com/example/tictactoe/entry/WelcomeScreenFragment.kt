@@ -36,12 +36,10 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
 
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_entry, container, false)
-
-        viewModel.database =
-            GameStateDatabase.getInstance(requireNotNull(this.activity).application)!!.gameStateDatabaseDao
+        // init the database
         model.database =
             GameStateDatabase.getInstance(requireNotNull(this.activity).application)!!.gameStateDatabaseDao
-
+        // init Observer
         val uiStateObserver = Observer<WelcomeScreenUiState> { newState ->
             binding.apply {
                 playerVsPlayer.visibility = newState.playerVsPlayerVisibility
@@ -62,7 +60,6 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
         super.onViewCreated(view, savedInstanceState)
         // setting up clickable buttons
         setClickableButtons()
-        Controller.createGameBasedOnTypeGame()
     }
 
     private fun setClickableButtons() {
@@ -84,14 +81,12 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
             restoreGame.setOnClickListener { v: View ->
                 model.restoreGameClicked()
                 viewModel.apply {
-                    createGameBasedOnType(GameType.PLAYER_VS_PLAYER)
-                    updateBoardImg()
-                    setCurrentTurnImg(Controller.currentTurnImg)
+                    updateBoardImg() // update UI state
+                    setCurrentTurnImg(Controller.currentTurnImg) // update UI state
                     updateControllerGameState(gameState)
                     updateListOfActions()
                 }
-                //Controller.settings.gameState = gameState
-                Log.i("WELCOME SCREEN", "Current Game State:\n${Controller.settings.gameState}")
+                Log.i("WELCOME SCREEN", "Current Game State:\n${Controller.controllerData.gameState}")
                 v.findNavController()
                     .navigate(WelcomeScreenFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
             }

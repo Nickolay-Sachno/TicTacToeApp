@@ -38,6 +38,9 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         binding.nextMoveHelper.setOnClickListener {
             this.context?.let { context: Context -> nextMoveBtnClicked(context) }
         }
+
+        // init the database
+        viewModel.database = GameStateDatabase.getInstance(requireNotNull(this.activity).application)!!.gameStateDatabaseDao
         // inform the controller about the current fragment
         Controller.setFragment(this)
 
@@ -51,7 +54,25 @@ class GameScreenFragment : Fragment(), IGameScreenView {
             insertDatabaseLiveData().observe(viewLifecycleOwner, Observer(::printToast))
         }
 
-        viewModel.database = GameStateDatabase.getInstance(requireNotNull(this.activity).application)!!.gameStateDatabaseDao
+        val uiStateObserver = Observer<GameScreenViewModel.GameScreenUIState> { newState ->
+            binding.apply {
+                currentPlayerImg.setImageResource(newState.currentTurnImg)
+                progressBar.visibility = newState.progressBarVisibility
+                when(newState.lockScreen){
+                    true -> setFragmentClickable("LOCK")
+                    else -> setFragmentClickable("UNLOCK")
+                }
+                // we update the board cell's only if they were played
+                for(row in newState.boardImg.boardImg.indices){
+                    for(col in newState.boardImg.boardImg[0].indices){
+                        if(newState.boardImg.boardImg[row][col] != 0){
+                            setCellImg(row, col, newState.boardImg.boardImg[row][col])
+                        }
+                    }
+                }
+            }
+        }
+        viewModel.gameScreenUIStateMutableData.observe(viewLifecycleOwner, uiStateObserver)
 
         return binding.root
     }
