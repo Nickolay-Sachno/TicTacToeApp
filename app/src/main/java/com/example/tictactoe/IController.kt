@@ -11,7 +11,7 @@ import com.example.tictactoe.settings.SettingsFragment
 
 interface IController {
 
-    fun onCellSelected(row : Int, col : Int)
+    //fun onCellSelected(row : Int, col : Int)
     fun playUser(row: Int, col: Int)
     fun playAgent()
     fun checkForWinner() : PlayerData?
@@ -27,4 +27,7 @@ interface IController {
     fun updateCurrentTurnImg(gameStateCurrentTurnImg: Int)
     fun updateGameState(gameState: GameState)
     fun updateGameType(playerVsPlayer: GameType)
+    fun updateWinnerState(winnerState: ArrayList<Triple<Int, Int, Int>>)
+    fun updateAgentPlayedMove(agentPlayedMove: ArrayList<Int>)
+    fun clearControllerData()
 }

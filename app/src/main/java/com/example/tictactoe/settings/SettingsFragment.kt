@@ -31,7 +31,7 @@ class SettingsFragment : Fragment(), ISettingsView {
         // update the current fragment in the controller
         Controller.setFragment(this)
 
-        when(Controller.settings.difficulty.name){
+        when(Controller.controllerData.settings.agentDifficulty.name){
             AgentDifficulties.EASY.name -> { binding.switchDiff.isChecked = false}
             AgentDifficulties.MEDIUM.name -> {binding.switchDiff.isChecked = true}
         }

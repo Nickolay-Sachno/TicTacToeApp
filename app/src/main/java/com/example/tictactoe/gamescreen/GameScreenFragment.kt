@@ -2,24 +2,22 @@ package com.example.tictactoe.gamescreen
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.database.GameStateDatabase
-import com.example.tictactoe.database.GameStateDatabaseDao
 import com.example.tictactoe.databinding.FragmentGameScreenBinding
 import com.example.tictactoe.settings.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.ArrayList
 
 
 class GameScreenFragment : Fragment(), IGameScreenView {
@@ -44,71 +42,16 @@ class GameScreenFragment : Fragment(), IGameScreenView {
         // inform the controller about the current fragment
         Controller.setFragment(this)
 
-        // Observation
-        viewModel.apply {
-            currentTurnImgLiveData().observe(viewLifecycleOwner, Observer(::updateCurrentTurnImg))
-            gridLiveData().observe(viewLifecycleOwner, Observer(::updateGridImg))
-            isProgressBarVisibleLiveData().observe(viewLifecycleOwner, Observer(::updateProgressBar))
-            isGameScreenBlockedLiveData().observe(viewLifecycleOwner, Observer(::setFragmentClickable))
-            boardImgLiveData().observe(viewLifecycleOwner, Observer(::updateBoardImg))
-            insertDatabaseLiveData().observe(viewLifecycleOwner, Observer(::printToast))
-        }
-
-        val uiStateObserver = Observer<GameScreenViewModel.GameScreenUIState> { newState ->
-            binding.apply {
-                currentPlayerImg.setImageResource(newState.currentTurnImg)
-                progressBar.visibility = newState.progressBarVisibility
-                when(newState.lockScreen){
-                    true -> setFragmentClickable("LOCK")
-                    else -> setFragmentClickable("UNLOCK")
-                }
-                // we update the board cell's only if they were played
-                for(row in newState.boardImg.boardImg.indices){
-                    for(col in newState.boardImg.boardImg[0].indices){
-                        if(newState.boardImg.boardImg[row][col] != 0){
-                            setCellImg(row, col, newState.boardImg.boardImg[row][col])
-                        }
-                    }
-                }
-            }
-        }
+        val uiStateObserver = createUIStateObserver()
         viewModel.gameScreenUIStateMutableData.observe(viewLifecycleOwner, uiStateObserver)
-
+        viewModel.inflateGameScreenFragment()
         return binding.root
-    }
-
-    private fun printToast(toast: String) {
-        Toast.makeText(context, toast, Toast.LENGTH_SHORT).show()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.fragment = this
 
-    }
-
-    private fun updateBoardImg(board: Array<IntArray>){
-        for(row in board.indices){
-            for( col in board[0].indices){
-                setCellImg(row, col, board[row][col])
-            }
-        }
-    }
-
-    private fun updateProgressBar(isVisible: Boolean) {
-        if(isVisible){
-            binding.progressBar.visibility = View.VISIBLE
-        } else {
-            binding.progressBar.visibility = View.INVISIBLE
-        }
-    }
-
-    private fun updateCurrentTurnImg(imgId: Int) {
-        binding.currentPlayerImg.setImageResource(imgId)
-    }
-
-    private fun updateGridImg(point: Triple<Int, Int, Int>) {
-        setCellImg(point.first, point.second, point.third)
     }
 
     fun onGridCellSelected(row: Int, col: Int) {
@@ -178,6 +121,27 @@ class GameScreenFragment : Fragment(), IGameScreenView {
             "2,0" -> binding.imageView20.setBackgroundColor(color)
             "2,1" -> binding.imageView21.setBackgroundColor(color)
             "2,2" -> binding.imageView22.setBackgroundColor(color)
+        }
+    }
+
+    override fun createUIStateObserver(): Observer<in GameScreenViewModel.GameScreenUIState> {
+        return Observer<GameScreenViewModel.GameScreenUIState> { newState ->
+            binding.apply {
+                currentPlayerImg.setImageResource(newState.currentTurnImg)
+                progressBar.visibility = newState.progressBarVisibility
+                when(newState.lockScreen){
+                    true -> setFragmentClickable("LOCK")
+                    else -> setFragmentClickable("UNLOCK")
+                }
+                // we update the board cell's only if they were played
+                for(row in newState.board.boardImg.indices){
+                    for(col in newState.board.boardImg[0].indices){
+                        if(newState.board.boardImg[row][col] != 0){
+                            setCellImg(row, col, newState.board.boardImg[row][col])
+                        }
+                    }
+                }
+            }
         }
     }
 

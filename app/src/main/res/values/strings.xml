@@ -16,4 +16,5 @@
     <string name="settings_switch_text_off">Off</string>
     <string name="settings_switch_text_on">On</string>
     <string name="next_move_helper_str">Sugest Move</string>
+    <string name="restore_game_text">Loading game . . .</string>
 </resources>

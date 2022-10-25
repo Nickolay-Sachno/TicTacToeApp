@@ -1,7 +1,10 @@
 package com.example.tictactoe.entry
 
 import GameState
+import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -39,6 +42,9 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
         // init the database
         model.database =
             GameStateDatabase.getInstance(requireNotNull(this.activity).application)!!.gameStateDatabaseDao
+
+        // inflate the Fragment from View Model
+        model.inflateWelcomeScreenFragment()
         // init Observer
         val uiStateObserver = Observer<WelcomeScreenUiState> { newState ->
             binding.apply {
@@ -52,7 +58,6 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
 
         // update the current fragment in the controller
         Controller.setFragment(this)
-
         return binding.root
     }
 
@@ -80,13 +85,10 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
             }
             restoreGame.setOnClickListener { v: View ->
                 model.restoreGameClicked()
-                viewModel.apply {
-                    updateBoardImg() // update UI state
-                    setCurrentTurnImg(Controller.currentTurnImg) // update UI state
-                    updateControllerGameState(gameState)
-                    updateListOfActions()
-                }
-                Log.i("WELCOME SCREEN", "Current Game State:\n${Controller.controllerData.gameState}")
+                Log.i(
+                    "WELCOME SCREEN",
+                    "Current Game State:\n${Controller.controllerData.gameState}"
+                )
                 v.findNavController()
                     .navigate(WelcomeScreenFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
             }

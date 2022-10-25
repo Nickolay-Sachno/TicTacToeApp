@@ -10,5 +10,5 @@ import java.io.Serializable
 
 data class Settings(
     // User visible
-    var difficulty : AgentDifficulties = AgentDifficulties.MEDIUM
+    var difficulty: AgentDifficulties = AgentDifficulties.MEDIUM
 ) : Serializable
