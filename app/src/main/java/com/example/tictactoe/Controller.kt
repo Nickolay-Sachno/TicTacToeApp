@@ -50,7 +50,6 @@ object Controller : IController {
 
     var settings: Settings = Settings()
     var fragment: View? = null
-    var currentTurnImg: Int = CellTypeImg.CROSS_BLACK.id
 
     var controllerData: ControllerData = ControllerData()
 
@@ -601,4 +600,40 @@ data class ControllerData(
     val playerPlayedMove: ArrayList<Int> = arrayListOf(),
     val agentPlayedMove: ArrayList<Int> = arrayListOf(),
     val currentTurnImg: Int = CellTypeImg.CROSS_BLACK.id
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ControllerData
+
+        if (settings != other.settings) return false
+        if (gameType != other.gameType) return false
+        if (firstPlayer != other.firstPlayer) return false
+        if (secondPlayer != other.secondPlayer) return false
+        if (listOfActions != other.listOfActions) return false
+        if (gameState != other.gameState) return false
+        if (!gridLayoutImgId.contentDeepEquals(other.gridLayoutImgId)) return false
+        if (winnerState != other.winnerState) return false
+        if (playerPlayedMove != other.playerPlayedMove) return false
+        if (agentPlayedMove != other.agentPlayedMove) return false
+        if (currentTurnImg != other.currentTurnImg) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = settings.hashCode()
+        result = 31 * result + gameType.hashCode()
+        result = 31 * result + firstPlayer.hashCode()
+        result = 31 * result + secondPlayer.hashCode()
+        result = 31 * result + listOfActions.hashCode()
+        result = 31 * result + gameState.hashCode()
+        result = 31 * result + gridLayoutImgId.contentDeepHashCode()
+        result = 31 * result + winnerState.hashCode()
+        result = 31 * result + playerPlayedMove.hashCode()
+        result = 31 * result + agentPlayedMove.hashCode()
+        result = 31 * result + currentTurnImg
+        return result
+    }
+}

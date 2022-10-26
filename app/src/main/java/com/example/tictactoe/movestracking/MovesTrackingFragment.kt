@@ -41,9 +41,6 @@ class MovesTrackingFragment : Fragment(), IMovesTrackingView {
         adapter = RecyclerAdapter(Controller.controllerData.listOfActions)
         binding.recyclerView.adapter = adapter
 
-        // init the view model
-        //viewModel = ViewModelProvider(this)[MovesTrackingViewModel::class.java]
-
         return binding.root
     }
 }

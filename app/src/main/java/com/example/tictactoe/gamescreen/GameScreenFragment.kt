@@ -107,7 +107,7 @@ class GameScreenFragment : Fragment(), IGameScreenView {
     }
 
     override fun nextMoveBtnClicked(context: Context) {
-        Controller.getNextMoveHelpFromApi(context)
+        viewModel.onNextMoveBtnClicked(context)
     }
 
     override fun setCellBoardBackgroundColor(row: Int, col: Int, color: Int) {

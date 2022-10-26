@@ -3,7 +3,12 @@ package com.example.tictactoe.gamescreen
 import Cell
 import GameState
 import Player
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +18,7 @@ import com.example.tictactoe.database.GameStateDatabaseDao
 import com.example.tictactoe.enum.GameType
 import com.example.tictactoe.settings.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Main
 
 
 // delays
@@ -51,6 +57,45 @@ class GameScreenViewModel() : ViewModel() {
         }
     }
 
+    fun onNextMoveBtnClicked(context: Context) {
+        Controller.getNextMoveHelpFromApi(context)
+        // lock the screen
+        updateLockScreen(true)
+        // check for internet connection
+        if (hasInternetConnection(context)){
+            Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show()
+            updateLockScreen(false)
+            return
+        }
+        // start the animation of the progress bar with delay
+        // get current board as string
+        // get current turn as string
+        // send those to the API and get answer
+        // end the animation of the progress bar
+        // animate the suggested move
+        // unlock the screen
+    }
+
+    fun hasInternetConnection(context: Context) : Boolean{
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+                return true
+            }
+        }
+        return false
+    }
+
     private fun updateCellInBoardAfterPlayerPlayed() {
         updateCellInBoard(
             getLatestPlayerPlayedMoveFromController()[0],
@@ -71,7 +116,7 @@ class GameScreenViewModel() : ViewModel() {
 
         // Player turn
         updateLockScreen(true)
-        Controller.playUser(row, col)
+        playUserFromController(row, col)
 
         // update the UI
         updateCellInBoardAfterPlayerPlayed()
@@ -83,11 +128,11 @@ class GameScreenViewModel() : ViewModel() {
         }
 
         // if first player wins, ai shouldn't make a move
-        if (Controller.checkIfPlayerWinAgent()) {
+        if (checkIfPlayedWinAiFromController()) {
             // winner state
             if (getLatestWinnerStateFromController().size != 0) {
                 updateWinnerUIState()
-                Controller.clearControllerData()
+                clearDataFromControllerData()
 
                 viewModelScope.launch {
                     database.clear()
@@ -98,7 +143,7 @@ class GameScreenViewModel() : ViewModel() {
 
         // Agent turn
         updateLockScreen(true)
-        viewModelScope.launch {
+        CoroutineScope(Main).launch {
 
             updateProgressBarVisibility(View.VISIBLE)
 
@@ -106,12 +151,11 @@ class GameScreenViewModel() : ViewModel() {
             delay(AGENT_DELAY_MOVE_TIME)
 
             // agent make a move
-            Controller.playAgent()
+            playAgentFromController()
             updateCellInBoardAfterAiPlayed()
-
+            updateAgentMakeMoveToController()
             updateProgressBarVisibility(View.INVISIBLE)
         }
-        Controller.updateAgentPlayedMove(arrayListOf())
         updateCurrentTurnImg(getLatestCurrentTurnImgFromController())
 
         // Prep Game State For Database and insert it
@@ -142,7 +186,7 @@ class GameScreenViewModel() : ViewModel() {
 
         // Player turn
         updateLockScreen(true)
-        Controller.playUser(row, col)
+        playUserFromController(col, row)
         // update the board
         updateCellInBoardAfterPlayerPlayed()
         updateCurrentTurnImg(getLatestCurrentTurnImgFromController())
@@ -150,7 +194,7 @@ class GameScreenViewModel() : ViewModel() {
         // winner state
         if (getLatestWinnerStateFromController().size != 0) {
             updateWinnerUIState()
-            Controller.clearControllerData()
+            clearDataFromControllerData()
 
             viewModelScope.launch {
                 database.clear()
@@ -184,10 +228,30 @@ class GameScreenViewModel() : ViewModel() {
 
 
     /** ***********************************************************************************************************************/
-    /** ********************************************** Get data from Controller ***********************************************/
+    /** ********************************************** Get/Set data from/to Controller ****************************************/
     /** ***********************************************************************************************************************/
 
-    private fun getLatestGridLayoutImgFromController(): Array<Array<Int>>{
+    private fun playUserFromController(row: Int, col: Int) {
+        Controller.playUser(row, col)
+    }
+
+    private fun playAgentFromController() {
+        Controller.playAgent()
+    }
+
+    private fun updateAgentMakeMoveToController() {
+        Controller.updateAgentPlayedMove(arrayListOf())
+    }
+
+    private fun clearDataFromControllerData() {
+        Controller.clearControllerData()
+    }
+
+    private fun checkIfPlayedWinAiFromController(): Boolean {
+        return Controller.checkIfPlayerWinAgent()
+    }
+
+    private fun getLatestGridLayoutImgFromController(): Array<Array<Int>> {
         return Controller.controllerData.gridLayoutImgId
     }
 
@@ -195,11 +259,11 @@ class GameScreenViewModel() : ViewModel() {
         return Controller.controllerData.playerPlayedMove
     }
 
-    private fun getLatestAgentPlayedMoveFromController() : ArrayList<Int> {
+    private fun getLatestAgentPlayedMoveFromController(): ArrayList<Int> {
         return Controller.controllerData.agentPlayedMove
     }
 
-    private fun getLatestWinnerStateFromController(): ArrayList<Triple<Int, Int, Int>>{
+    private fun getLatestWinnerStateFromController(): ArrayList<Triple<Int, Int, Int>> {
         return Controller.controllerData.winnerState
     }
 
@@ -238,7 +302,6 @@ class GameScreenViewModel() : ViewModel() {
     private fun getLatestMatrixFromController(): Array<Array<Cell>> {
         return Controller.controllerData.gameState.grid.matrix
     }
-
 
     private fun getLatestGridBridgeFromController(): GridBridge {
         return GridBridge(
