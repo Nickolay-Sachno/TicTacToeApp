@@ -1,10 +1,6 @@
 package com.example.tictactoe.entry
 
-import GameState
-import android.app.AlertDialog
-import android.app.ProgressDialog
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -18,24 +14,16 @@ import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.database.GameStateDatabase
 import com.example.tictactoe.databinding.FragmentEntryBinding
-import com.example.tictactoe.enum.GameType
-import com.example.tictactoe.gamescreen.GameScreenViewModel
-import com.example.tictactoe.settings.CellTypeImg
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
 
     private lateinit var binding: FragmentEntryBinding
-    private val viewModel: GameScreenViewModel by activityViewModels()
-    private lateinit var gameState: GameState
     private val model: WelcomeScreenViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_entry, container, false)
@@ -46,14 +34,7 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
         // inflate the Fragment from View Model
         model.inflateWelcomeScreenFragment()
         // init Observer
-        val uiStateObserver = Observer<WelcomeScreenUiState> { newState ->
-            binding.apply {
-                playerVsPlayer.visibility = newState.playerVsPlayerVisibility
-                playerVsAi.visibility = newState.playerVsAiVisibility
-                restoreGame.visibility = newState.restoreGameVisibility
-                settings.visibility = newState.settingsVisibility
-            }
-        }
+        val uiStateObserver = initUiObserver()
         model.welcomeScreenUiStateMutableLiveData.observe(viewLifecycleOwner, uiStateObserver)
 
         // update the current fragment in the controller
@@ -85,12 +66,19 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
             }
             restoreGame.setOnClickListener { v: View ->
                 model.restoreGameClicked()
-                Log.i(
-                    "WELCOME SCREEN",
-                    "Current Game State:\n${Controller.controllerData.gameState}"
-                )
                 v.findNavController()
                     .navigate(WelcomeScreenFragmentDirections.actionEntryFragmentToHostGameScreenFragment())
+            }
+        }
+    }
+
+    override fun initUiObserver(): Observer<in WelcomeScreenUiState> {
+        return Observer<WelcomeScreenUiState> { newState ->
+            binding.apply {
+                playerVsPlayer.visibility = newState.playerVsPlayerVisibility
+                playerVsAi.visibility = newState.playerVsAiVisibility
+                restoreGame.visibility = newState.restoreGameVisibility
+                settings.visibility = newState.settingsVisibility
             }
         }
     }

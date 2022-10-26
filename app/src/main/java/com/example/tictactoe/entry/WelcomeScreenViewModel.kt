@@ -1,7 +1,6 @@
 package com.example.tictactoe.entry
 
 import GameState
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.*
 import com.example.tictactoe.Controller
@@ -21,6 +20,7 @@ class WelcomeScreenViewModel() : ViewModel() {
         MutableLiveData<WelcomeScreenUiState>()
     }
 
+    /** Called every onCreate() in the fragment */
     fun inflateWelcomeScreenFragment() {
         viewModelScope.launch {
             if (database.getAllGameStates().isNotEmpty()) {
@@ -49,11 +49,9 @@ class WelcomeScreenViewModel() : ViewModel() {
 
     fun settingsClicked() {}
     fun restoreGameClicked() {
-        Log.i("", "a")
         viewModelScope.launch {
             restoreGameStateFromDatabase()
         }
-        Log.i("", "c")
     }
 
     private suspend fun restoreGameStateFromDatabase() {
@@ -73,19 +71,16 @@ class WelcomeScreenViewModel() : ViewModel() {
                     kotlin.run {
                         Array(3) { row ->
                             Array(3) { col ->
-                                when(gameState.grid.matrix[row][col].content){
+                                when (gameState.grid.matrix[row][col].content) {
                                     CellType.CROSS -> CellTypeImg.CROSS_BLACK.id
                                     CellType.CIRCLE -> CellTypeImg.CIRCLE_BLACK.id
                                     else -> 0
                                 }
                             }
-                        }}
+                        }
+                    }
                 )
             }
-            Log.i(
-                "WELCOME SCREEN View Model",
-                "Current Game State:\n${Controller.controllerData.gameState}"
-            )
 
         } catch (e: Exception) {
             throw IllegalArgumentException(e)
@@ -100,12 +95,11 @@ class WelcomeScreenViewModel() : ViewModel() {
     private suspend fun getCurrentTurnIngFromDatabase(): Int {
         var gameStateCurrentTurnImg = 0
         viewModelScope.launch {
-            Log.i("", "b")
-            gameStateCurrentTurnImg =  when (database.getLatestGameState().currentTurn) {
-                    CellType.CROSS.name -> CellTypeImg.CROSS_BLACK.id
-                    CellType.CIRCLE.name -> CellTypeImg.CIRCLE_BLACK.id
-                    else -> throw IllegalArgumentException()
-                }
+            gameStateCurrentTurnImg = when (database.getLatestGameState().currentTurn) {
+                CellType.CROSS.name -> CellTypeImg.CROSS_BLACK.id
+                CellType.CIRCLE.name -> CellTypeImg.CIRCLE_BLACK.id
+                else -> throw IllegalArgumentException()
+            }
         }.join()
         return gameStateCurrentTurnImg
     }
@@ -136,55 +130,60 @@ class WelcomeScreenViewModel() : ViewModel() {
         Controller.createGameBasedOnTypeGame()
     }
 
+    /** Update UI State functions */
     fun updateProgressBarVisibility(visibility: Int) {
+        welcomeScreenUiState = WelcomeScreenUiState(
+            playerVsAiVisibility = welcomeScreenUiState.playerVsAiVisibility,
+            playerVsPlayerVisibility = welcomeScreenUiState.playerVsPlayerVisibility,
+            restoreGameVisibility = welcomeScreenUiState.restoreGameVisibility,
+            settingsVisibility = welcomeScreenUiState.settingsVisibility,
+            progressBarVisibility = visibility,
+            restoreGameProgressBarTextVisibility = welcomeScreenUiState.progressBarVisibility
+        )
         welcomeScreenUiStateMutableLiveData.postValue(
-            WelcomeScreenUiState(
-                playerVsAiVisibility = welcomeScreenUiStateMutableLiveData.value!!.playerVsAiVisibility,
-                playerVsPlayerVisibility = welcomeScreenUiStateMutableLiveData.value!!.playerVsPlayerVisibility,
-                restoreGameVisibility = welcomeScreenUiStateMutableLiveData.value!!.restoreGameVisibility,
-                settingsVisibility = welcomeScreenUiStateMutableLiveData.value!!.settingsVisibility,
-                progressBarVisibility = visibility,
-                restoreGameProgressBarTextVisibility = welcomeScreenUiStateMutableLiveData.value!!.progressBarVisibility
-            )
+            welcomeScreenUiState
         )
     }
 
     fun updateRestoreProgressBarTextVisibility(visibility: Int) {
+        welcomeScreenUiState = WelcomeScreenUiState(
+            playerVsAiVisibility = welcomeScreenUiState.playerVsAiVisibility,
+            playerVsPlayerVisibility = welcomeScreenUiState.playerVsPlayerVisibility,
+            restoreGameVisibility = welcomeScreenUiState.restoreGameVisibility,
+            settingsVisibility = welcomeScreenUiState.settingsVisibility,
+            progressBarVisibility = welcomeScreenUiState.progressBarVisibility,
+            restoreGameProgressBarTextVisibility = visibility
+        )
         welcomeScreenUiStateMutableLiveData.postValue(
-            WelcomeScreenUiState(
-                playerVsAiVisibility = welcomeScreenUiStateMutableLiveData.value!!.playerVsAiVisibility,
-                playerVsPlayerVisibility = welcomeScreenUiStateMutableLiveData.value!!.playerVsPlayerVisibility,
-                restoreGameVisibility = welcomeScreenUiStateMutableLiveData.value!!.restoreGameVisibility,
-                settingsVisibility = welcomeScreenUiStateMutableLiveData.value!!.settingsVisibility,
-                progressBarVisibility = welcomeScreenUiStateMutableLiveData.value!!.progressBarVisibility,
-                restoreGameProgressBarTextVisibility = visibility
-            )
+            welcomeScreenUiState
         )
     }
 
     fun updateRestoreButtonVisibility(visibility: Int) {
+        welcomeScreenUiState = WelcomeScreenUiState(
+            playerVsAiVisibility = welcomeScreenUiState.playerVsAiVisibility,
+            playerVsPlayerVisibility = welcomeScreenUiState.playerVsPlayerVisibility,
+            restoreGameVisibility = visibility,
+            settingsVisibility = welcomeScreenUiState.settingsVisibility,
+            progressBarVisibility = welcomeScreenUiState.progressBarVisibility,
+            restoreGameProgressBarTextVisibility = welcomeScreenUiState.restoreGameProgressBarTextVisibility
+        )
         welcomeScreenUiStateMutableLiveData.postValue(
-            WelcomeScreenUiState(
-                playerVsAiVisibility = welcomeScreenUiStateMutableLiveData.value!!.playerVsAiVisibility,
-                playerVsPlayerVisibility = welcomeScreenUiStateMutableLiveData.value!!.playerVsPlayerVisibility,
-                restoreGameVisibility = visibility,
-                settingsVisibility = welcomeScreenUiStateMutableLiveData.value!!.settingsVisibility,
-                progressBarVisibility = welcomeScreenUiStateMutableLiveData.value!!.progressBarVisibility,
-                restoreGameProgressBarTextVisibility = welcomeScreenUiStateMutableLiveData.value!!.restoreGameProgressBarTextVisibility
-            )
+            welcomeScreenUiState
         )
     }
 }
 
+/** Welcome Screen UI State Data Class */
 data class WelcomeScreenUiState(
     // buttons
     val playerVsPlayerVisibility: Int = View.VISIBLE,
     val playerVsAiVisibility: Int = View.VISIBLE,
     val restoreGameVisibility: Int = View.GONE,
     val settingsVisibility: Int = View.VISIBLE,
+
+    // loading data from DB
     val progressBarVisibility: Int = View.GONE,
     val restoreGameProgressBarTextVisibility: Int = View.GONE
-
-    //
 )
 

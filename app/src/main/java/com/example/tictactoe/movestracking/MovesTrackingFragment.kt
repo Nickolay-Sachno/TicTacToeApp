@@ -25,7 +25,6 @@ class MovesTrackingFragment : Fragment(), IMovesTrackingView {
     private lateinit var binding: FragmentMovesTrackingBinding
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var adapter : RecyclerAdapter
-    private val viewModel: GameScreenViewModel by activityViewModels()
 
 
     override fun onCreateView(
