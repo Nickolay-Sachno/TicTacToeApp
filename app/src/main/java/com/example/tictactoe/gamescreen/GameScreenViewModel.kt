@@ -3,7 +3,9 @@ package com.example.tictactoe.gamescreen
 import Cell
 import GameState
 import Player
+import android.accounts.NetworkErrorException
 import android.content.Context
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
@@ -16,13 +18,20 @@ import com.example.tictactoe.Controller
 import com.example.tictactoe.database.GameStateData
 import com.example.tictactoe.database.GameStateDatabaseDao
 import com.example.tictactoe.enum.GameType
+import com.example.tictactoe.networking.RestClient
+import com.example.tictactoe.networking.Result
 import com.example.tictactoe.settings.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 // delays
 private const val AGENT_DELAY_MOVE_TIME: Long = 1000
+private const val SUGGESTED_MOVE_ANIM_DELAY_TIME: Long = 2000
+private const val TAG: String = "GAME SCREEN VIEW MODEL"
 
 class GameScreenViewModel() : ViewModel() {
 
@@ -58,42 +67,53 @@ class GameScreenViewModel() : ViewModel() {
     }
 
     fun onNextMoveBtnClicked(context: Context) {
-        Controller.getNextMoveHelpFromApi(context)
-        // lock the screen
-        updateLockScreen(true)
+        Log.i(TAG, "On Next Move Btn Clicked")
         // check for internet connection
-        if (hasInternetConnection(context)){
+        if (!hasInternetConnection(context)) {
             Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show()
             updateLockScreen(false)
             return
         }
-        // start the animation of the progress bar with delay
-        // get current board as string
-        // get current turn as string
-        // send those to the API and get answer
-        // end the animation of the progress bar
-        // animate the suggested move
-        // unlock the screen
-    }
+        CoroutineScope(Main).launch {
+            try {
+                // lock the screen
+                updateLockScreen(true)
+                // start the animation of the progress bar with delay
+                startProgressBarAnimation()
 
-    fun hasInternetConnection(context: Context) : Boolean{
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val capabilities =
-            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-        if (capabilities != null) {
-            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-                Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
-                return true
-            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
-                return true
-            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-                Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
-                return true
+                Log.i(TAG, "Delay on Main Thread")
+                delay(SUGGESTED_MOVE_ANIM_DELAY_TIME)
+                // get current board as string
+                val game: String =
+                    getValidStringToApiCallFromGameState(getLatestGameStateFromController().toString())
+                // get current turn as string
+                val turn = getLatestCurrentTurnFromController().cellType.chr.toString()
+                // send those to the API and get answer
+                apiCallForSuggestMove(game, turn)
+
+            } catch (e: Exception) {
+                Log.i("Game Screen View Model", e.toString())
+            } finally {
+//                // end the animation of the progress bar
+//                endProgressBarAnimation()
+//                // unlock the screen
+//                updateLockScreen(false)
             }
         }
-        return false
+
+    }
+
+    private fun startProgressBarAnimation() {
+        updateProgressBarVisibility(View.VISIBLE)
+//        CoroutineScope(Main).launch {
+//            Log.i(TAG, "Delay on Main Thread")
+//            delay(SUGGESTED_MOVE_ANIM_DELAY_TIME)
+//        }
+
+    }
+
+    private fun endProgressBarAnimation() {
+        updateProgressBarVisibility(View.INVISIBLE)
     }
 
     private fun updateCellInBoardAfterPlayerPlayed() {
@@ -220,16 +240,119 @@ class GameScreenViewModel() : ViewModel() {
     suspend fun insertDataToDatabase(gameStateBridge: GameStateBridge) {
         database.insert(
             GameStateData(
-                currentTurn = getLatestCurrentTurnFromController(),
+                currentTurn = getLatestCurrentTurnCellTypeNameFromController(),
                 gameState = Controller.fromGameStateBridgeToString(gameStateBridge)
             )
         )
     }
 
+    fun getValidStringToApiCallFromGameState(str: String): String {
+        var returnString = ""
+        for (i in str.indices) {
+            if (str[i].toString() == "-" || str[i].toString() == "X" || str[i].toString() == "O") {
+                returnString += str[i]
+            }
+        }
+        return returnString
+    }
+
+    /** ***********************************************************************************************************************/
+    /** ********************************************** Suggest Move API Logic *************************************************/
+    /** ***********************************************************************************************************************/
+
+    private fun apiCallForSuggestMove(game: String, turn: String) {
+        try {
+            val call: Call<Result> =
+                RestClient.movesService.getNextMove(game, turn)
+            call.enqueue(object : Callback<Result> {
+                override fun onFailure(call: Call<Result>, t: Throwable) {
+                    throw NetworkErrorException()
+                }
+
+                override fun onResponse(call: Call<Result>, response: Response<Result>) {
+                    Log.i("ENTRY", "Finished with the response:\n${response.body()}")
+
+                    val (row: Int, col: Int) = formAPIRecommendationToCoordinates(
+                        response.body()?.recommendation
+                    )
+                    // hide the progress bar after we get a response from API
+                    updateProgressBarVisibility(View.INVISIBLE)
+
+                    // animate the suggested move
+                    animateSuggestedMoveOnBoard(row, col)
+                }
+            })
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
+    private fun animateSuggestedMoveOnBoard(row: Int, col: Int) {
+
+        CoroutineScope(Main).launch {
+            updateLockScreen(true)
+            updateSuggestMoveCoordinatesAndColor(row, col, Color.GREEN)
+
+            Log.i(TAG, "Delay on Main Thread")
+            delay(SUGGESTED_MOVE_ANIM_DELAY_TIME)
+
+        }
+
+        CoroutineScope(Main).launch {
+            Log.i(TAG, "Delay on Main Thread")
+            delay(SUGGESTED_MOVE_ANIM_DELAY_TIME)
+            updateSuggestMoveCoordinatesAndColor(row, col, Color.WHITE)
+            updateLockScreen(false)
+        }
+
+    }
+
+    private fun formAPIRecommendationToCoordinates(recommendation: Int?): Pair<Int, Int> {
+        return when (recommendation) {
+            0 -> Pair(0, 0) // (0,0).first -> 0
+            1 -> Pair(0, 1) // (0,1).second -> 1
+            2 -> Pair(0, 2)
+            3 -> Pair(1, 0)
+            4 -> Pair(1, 1)
+            5 -> Pair(1, 2)
+            6 -> Pair(2, 0)
+            7 -> Pair(2, 1)
+            8 -> Pair(2, 2)
+            else -> Pair(0, 0)
+        }
+    }
+
+    private fun hasInternetConnection(context: Context): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+                return true
+            }
+        }
+        return false
+    }
 
     /** ***********************************************************************************************************************/
     /** ********************************************** Get/Set data from/to Controller ****************************************/
     /** ***********************************************************************************************************************/
+
+    private fun getLatestGameStateFromController(): GameState {
+        return Controller.controllerData.gameState
+    }
+
+    private fun getLatestCurrentTurnFromController(): Player {
+        return Controller.controllerData.gameState.currentTurn()
+    }
 
     private fun playUserFromController(row: Int, col: Int) {
         Controller.playUser(row, col)
@@ -280,7 +403,7 @@ class GameScreenViewModel() : ViewModel() {
     }
 
 
-    private fun getLatestCurrentTurnFromController(): String {
+    private fun getLatestCurrentTurnCellTypeNameFromController(): String {
         return Controller.controllerData.gameState.currentTurn().cellType.name
     }
 
@@ -320,9 +443,9 @@ class GameScreenViewModel() : ViewModel() {
         )
     }
 
-    /** ***********************************************************************************************************************/
-    /** ********************************************** Updating Controller Data ***********************************************/
-    /** ***********************************************************************************************************************/
+    /** ***************************************************************************************************************************/
+    /** ********************************************** Updating Controller Data ***************************************************/
+    /** ***************************************************************************************************************************/
 
     fun updateControllerGameState(gameState: GameState) {
         Controller.updateGameState(gameState)
@@ -332,19 +455,40 @@ class GameScreenViewModel() : ViewModel() {
     /** ********************************************** Updating Game Screen UI State ***********************************************/
     /** ****************************************************************************************************************************/
 
+
+
+    fun updateSuggestMoveCoordinatesAndColor(row: Int, col: Int, color: Int){
+        Log.i(TAG, "Updating Suggest Move Coordinates and color with: " +
+                "row: $row, col: $col, color: $color")
+        gameScreenUIState = GameScreenUIState(
+            currentTurnImg = gameScreenUIState.currentTurnImg,
+            board = Board(
+                boardImg = gameScreenUIState.board.boardImg
+            ),
+            progressBarVisibility = gameScreenUIState.progressBarVisibility,
+            lockScreen = gameScreenUIState.lockScreen,
+            suggestedMoveCoordinatesAndColor = listOf(row, col, color)
+        )
+        gameScreenUIStateMutableData.postValue(gameScreenUIState)
+    }
+
     fun updateCurrentTurnImg(currentTurnImg: Int) {
+        Log.i(TAG, "Updating Current Turn Img with: $currentTurnImg")
         gameScreenUIState = GameScreenUIState(
             currentTurnImg = currentTurnImg,
             board = Board(
                 boardImg = gameScreenUIState.board.boardImg
             ),
             progressBarVisibility = gameScreenUIState.progressBarVisibility,
-            lockScreen = gameScreenUIState.lockScreen
+            lockScreen = gameScreenUIState.lockScreen,
+            suggestedMoveCoordinatesAndColor = gameScreenUIState.suggestedMoveCoordinatesAndColor
         )
         gameScreenUIStateMutableData.postValue(gameScreenUIState)
     }
 
     fun updateCellInBoard(row: Int, col: Int, imgId: Int) {
+        Log.i(TAG, "updating Cell in Board with: " +
+                "row: $row, col: $col, imgId: $imgId")
         val board = Board(
             boardImg = kotlin.run {
                 Array(3) { r ->
@@ -362,6 +506,7 @@ class GameScreenViewModel() : ViewModel() {
     }
 
     fun updateBoard(board: Board) {
+        Log.i(TAG, "Updating board with: \n$board")
         gameScreenUIState = GameScreenUIState(
             currentTurnImg = gameScreenUIState.currentTurnImg,
             board = board,
@@ -372,6 +517,7 @@ class GameScreenViewModel() : ViewModel() {
     }
 
     fun updateProgressBarVisibility(visibility: Int) {
+        Log.i(TAG, "Updating Progress Bar Visibility with: $visibility")
         gameScreenUIState = GameScreenUIState(
             currentTurnImg = gameScreenUIState.currentTurnImg,
             board = Board(
@@ -384,6 +530,7 @@ class GameScreenViewModel() : ViewModel() {
     }
 
     fun updateLockScreen(lockScreen: Boolean) {
+        Log.i(TAG, "Updating Lock Screen with: $lockScreen")
         gameScreenUIState = GameScreenUIState(
             currentTurnImg = gameScreenUIState.currentTurnImg,
             board = Board(
@@ -396,6 +543,7 @@ class GameScreenViewModel() : ViewModel() {
     }
 
     fun updateShowSuggestMove(state: Boolean) {
+        Log.i(TAG, "Updating Show Suggest Move with: $state")
         gameScreenUIState = GameScreenUIState(
             currentTurnImg = gameScreenUIState.currentTurnImg,
             board = Board(
@@ -410,6 +558,7 @@ class GameScreenViewModel() : ViewModel() {
     }
 
     fun updateSuggestMoveCoordinates(row: Int, col: Int) {
+        Log.i(TAG, "Updating Suggest Move Coordinates with: row: $row, col: $col")
         gameScreenUIState = GameScreenUIState(
             currentTurnImg = gameScreenUIState.currentTurnImg,
             board = Board(
@@ -433,7 +582,8 @@ class GameScreenViewModel() : ViewModel() {
         val progressBarVisibility: Int = View.INVISIBLE,
         val lockScreen: Boolean = false,
         val showSuggestMove: Boolean = false,
-        val suggestMoveCoordinates: List<Int> = listOf()
+        val suggestMoveCoordinates: List<Int> = listOf(),
+        val suggestedMoveCoordinatesAndColor: List<Int> = listOf()
     )
 
     data class Board(

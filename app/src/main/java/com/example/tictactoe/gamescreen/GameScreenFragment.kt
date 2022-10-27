@@ -13,7 +13,6 @@ import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.database.GameStateDatabase
 import com.example.tictactoe.databinding.FragmentGameScreenBinding
-import com.example.tictactoe.settings.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -22,7 +21,6 @@ import kotlinx.coroutines.launch
 
 class GameScreenFragment : Fragment(), IGameScreenView {
     lateinit var binding: FragmentGameScreenBinding
-    lateinit var settings: Settings
     private val viewModel: GameScreenViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -111,6 +109,8 @@ class GameScreenFragment : Fragment(), IGameScreenView {
     }
 
     override fun setCellBoardBackgroundColor(row: Int, col: Int, color: Int) {
+        Log.i("GAME SCREEN FRAGMENT", "Set Cell Board Background Color: " +
+                "row: $row, col: $col, color: $color")
         when ("$row,$col") {
             "0,0" -> binding.imageView00.setBackgroundColor(color)
             "0,1" -> binding.imageView01.setBackgroundColor(color)
@@ -140,6 +140,13 @@ class GameScreenFragment : Fragment(), IGameScreenView {
                             setCellImg(row, col, newState.board.boardImg[row][col])
                         }
                     }
+                }
+                if(newState.suggestedMoveCoordinatesAndColor.isNotEmpty()){
+                    setCellBoardBackgroundColor(
+                        row = newState.suggestedMoveCoordinatesAndColor[0],
+                        col = newState.suggestedMoveCoordinatesAndColor[1],
+                        color = newState.suggestedMoveCoordinatesAndColor[2]
+                    )
                 }
             }
         }

@@ -1,13 +1,9 @@
 package com.example.tictactoe
 
 import GameState
-import Player
 import android.content.Context
 import com.example.tictactoe.enum.GameType
-import com.example.tictactoe.settings.CellTypeImg
 import com.example.tictactoe.settings.PlayerData
-import com.example.tictactoe.settings.Settings
-import com.example.tictactoe.settings.SettingsFragment
 
 interface IController {
 
@@ -22,7 +18,6 @@ interface IController {
     fun lockUserScreen(view: View)
     fun unlockUserScreen(view: View)
     fun setFragmentProgressBarVisibility(view:View?, name: String)
-    fun getNextMoveHelpFromApi(context: Context)
     fun isOnline(context: Context) : Boolean
     fun updateCurrentTurnImg(gameStateCurrentTurnImg: Int)
     fun updateGameState(gameState: GameState)

@@ -242,7 +242,7 @@ object Controller : IController {
         }
     }
     //TODO Move to View Model
-    override fun getNextMoveHelpFromApi(context: Context) {
+    fun getNextMoveHelpFromApi(context: Context) {
 
         val gameState : GameState = controllerData.gameState
         val gameScreenFragment = fragment as IGameScreenView
