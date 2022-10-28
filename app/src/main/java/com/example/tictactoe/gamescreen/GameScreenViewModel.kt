@@ -91,6 +91,8 @@ class GameScreenViewModel() : ViewModel() {
                 // send those to the API and get answer
                 apiCallForSuggestMove(game, turn)
 
+                clearSuggestMoveCoordinatesAndColor()
+
             } catch (e: Exception) {
                 Log.i("Game Screen View Model", e.toString())
             } finally {
@@ -206,7 +208,7 @@ class GameScreenViewModel() : ViewModel() {
 
         // Player turn
         updateLockScreen(true)
-        playUserFromController(col, row)
+        playUserFromController(row, col)
         // update the board
         updateCellInBoardAfterPlayerPlayed()
         updateCurrentTurnImg(getLatestCurrentTurnImgFromController())
@@ -280,6 +282,8 @@ class GameScreenViewModel() : ViewModel() {
 
                     // animate the suggested move
                     animateSuggestedMoveOnBoard(row, col)
+
+                    updateSuggestMoveCoordinatesAndColor(row, col, Color.WHITE)
                 }
             })
         } catch (e: Exception) {
@@ -296,15 +300,9 @@ class GameScreenViewModel() : ViewModel() {
             Log.i(TAG, "Delay on Main Thread")
             delay(SUGGESTED_MOVE_ANIM_DELAY_TIME)
 
-        }
-
-        CoroutineScope(Main).launch {
-            Log.i(TAG, "Delay on Main Thread")
-            delay(SUGGESTED_MOVE_ANIM_DELAY_TIME)
             updateSuggestMoveCoordinatesAndColor(row, col, Color.WHITE)
             updateLockScreen(false)
         }
-
     }
 
     private fun formAPIRecommendationToCoordinates(recommendation: Int?): Pair<Int, Int> {
@@ -456,6 +454,19 @@ class GameScreenViewModel() : ViewModel() {
     /** ****************************************************************************************************************************/
 
 
+    private fun clearSuggestMoveCoordinatesAndColor(){
+        Log.i(TAG, "Clearing Suggest Move Coordinates and color ")
+        gameScreenUIState = GameScreenUIState(
+            currentTurnImg = gameScreenUIState.currentTurnImg,
+            board = Board(
+                boardImg = gameScreenUIState.board.boardImg
+            ),
+            progressBarVisibility = gameScreenUIState.progressBarVisibility,
+            lockScreen = gameScreenUIState.lockScreen,
+            suggestedMoveCoordinatesAndColor = listOf()
+        )
+        gameScreenUIStateMutableData.postValue(gameScreenUIState)
+    }
 
     fun updateSuggestMoveCoordinatesAndColor(row: Int, col: Int, color: Int){
         Log.i(TAG, "Updating Suggest Move Coordinates and color with: " +
@@ -608,6 +619,17 @@ class GameScreenViewModel() : ViewModel() {
 
         override fun hashCode(): Int {
             return boardImg.contentDeepHashCode()
+        }
+
+        override fun toString(): String {
+            var str: String = ""
+            this.boardImg.forEach { row ->
+                row.forEach { cell ->
+                    str += cell.toString()
+                }
+                str += "\n"
+            }
+            return super.toString()
         }
     }
 
