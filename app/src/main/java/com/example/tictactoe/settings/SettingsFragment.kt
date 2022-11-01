@@ -7,20 +7,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.databinding.FragmentSettingsBinding
+import com.example.tictactoe.gamescreen.GameScreenViewModel
 
 
-class SettingsFragment : Fragment(), ISettingsView {
+class SettingsFragment : Fragment() {
     private lateinit var binding: FragmentSettingsBinding
-    private lateinit var viewModel: SettingsViewModel
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Controller.setFragment(this)
-    }
+    private val model: SettingsViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,36 +27,30 @@ class SettingsFragment : Fragment(), ISettingsView {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_settings, container, false)
         // update the current fragment in the controller
-        Controller.setFragment(this)
 
-        when(Controller.controllerData.settings.agentDifficulty.name){
-            AgentDifficulties.EASY.name -> { binding.switchDiff.isChecked = false}
-            AgentDifficulties.MEDIUM.name -> {binding.switchDiff.isChecked = true}
-        }
+        val uiStateObserver = createUIStateObserver()
+        model.settingsUIStateMutableData.observe(viewLifecycleOwner, uiStateObserver)
 
-        // init the view model
-        viewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
+        //model.inflateUIState()
+
         return binding.root
+    }
+
+    private fun createUIStateObserver(): Observer<in SettingsUiState> {
+        return Observer<SettingsUiState>{ newState ->
+            when(newState.settingsData.agentDifficulty){
+                AgentDifficulties.MEDIUM -> binding.switchDiff.isChecked = true
+                AgentDifficulties.EASY -> binding.switchDiff.isChecked = false
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.switchDiff.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                Controller.settings.difficulty = AgentDifficulties.MEDIUM
-            } else {
-                Controller.settings.difficulty = AgentDifficulties.EASY
-            }
+            model.onClickSetAgentDifficulty(isChecked)
         }
 
 
-    }
-
-    override fun getDiff(): AgentDifficulties {
-        return Controller.settings.difficulty
-    }
-
-    override fun setDiff(diff: AgentDifficulties) {
-        Controller.settings.difficulty = diff
     }
 }

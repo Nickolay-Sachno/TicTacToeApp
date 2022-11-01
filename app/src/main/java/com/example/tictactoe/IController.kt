@@ -4,6 +4,7 @@ import GameState
 import android.content.Context
 import com.example.tictactoe.enum.GameType
 import com.example.tictactoe.settings.PlayerData
+import com.example.tictactoe.settings.SettingsData
 
 interface IController {
 
@@ -25,4 +26,5 @@ interface IController {
     fun updateWinnerState(winnerState: ArrayList<Triple<Int, Int, Int>>)
     fun updateAgentPlayedMove(agentPlayedMove: ArrayList<Int>)
     fun clearControllerData()
+    fun updateSettingsData(settingsData: SettingsData)
 }

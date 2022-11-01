@@ -48,7 +48,6 @@ private const val SUGGESTED_MOVE_ANIM_DELAY_TIME: Long = 1500
 
 object Controller : IController {
 
-    var settings: Settings = Settings()
     var fragment: View? = null
 
     var controllerData: ControllerData = ControllerData()
@@ -84,7 +83,6 @@ object Controller : IController {
         this.fragment = when(fragment){
             is IWelcomeScreenView -> fragment
             is IGameScreenView -> fragment
-            is ISettingsView -> fragment
             else -> throw IllegalArgumentException()
         }
     }
@@ -433,6 +431,22 @@ object Controller : IController {
 
     override fun clearControllerData() {
         controllerData = ControllerData()
+    }
+
+    override fun updateSettingsData(settingsData: SettingsData) {
+        controllerData = ControllerData(
+            settings = settingsData,
+            gameType = controllerData.gameType,
+            firstPlayer = controllerData.firstPlayer,
+            secondPlayer = controllerData.secondPlayer,
+            listOfActions = controllerData.listOfActions,
+            gameState = controllerData.gameState,
+            gridLayoutImgId = controllerData.gridLayoutImgId,
+            winnerState = controllerData.winnerState,
+            playerPlayedMove = controllerData.playerPlayedMove,
+            agentPlayedMove = controllerData.agentPlayedMove,
+            currentTurnImg = controllerData.currentTurnImg
+        )
     }
 
     //TODO Move to View Model
