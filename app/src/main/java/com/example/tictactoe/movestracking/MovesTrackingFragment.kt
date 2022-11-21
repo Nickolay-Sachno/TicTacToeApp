@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.databinding.FragmentMovesTrackingBinding
@@ -23,8 +24,7 @@ import com.example.tictactoe.gamescreen.GameScreenViewModel
 class MovesTrackingFragment : Fragment(), IMovesTrackingView {
 
     private lateinit var binding: FragmentMovesTrackingBinding
-    private lateinit var linearLayoutManager: LinearLayoutManager
-    private lateinit var adapter : RecyclerAdapter
+    private val model: MovesTrackingViewModel by activityViewModels()
 
 
     override fun onCreateView(
@@ -32,14 +32,18 @@ class MovesTrackingFragment : Fragment(), IMovesTrackingView {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_moves_tracking, container, false)
+        binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_moves_tracking, container, false)
 
-        // init the recycle view and the adapter
-        linearLayoutManager = LinearLayoutManager(this.requireContext())
-        binding.recyclerView.layoutManager = linearLayoutManager
-        binding.recyclerView.addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
-        adapter = RecyclerAdapter(Controller.controllerData.listOfActions)
-        binding.recyclerView.adapter = adapter
+        model.inflateMovesTracking(this.requireContext())
+
+        val recyclerViewObserver = Observer<RecyclerView> { recyclerView ->
+            binding.recyclerView.layoutManager = recyclerView.layoutManager
+            model.addItemDecoration(this.requireContext(), DividerItemDecoration.VERTICAL)
+            binding.recyclerView.adapter = recyclerView.adapter
+        }
+
+        model.recyclerViewMutableLiveData.observe(viewLifecycleOwner, recyclerViewObserver)
 
         return binding.root
     }
