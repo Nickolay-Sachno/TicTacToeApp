@@ -43,7 +43,6 @@ private const val INVISIBLE = "invisible"
 private const val GONE = "gone"
 
 // delays
-private const val AGENT_DELAY_MOVE_TIME: Long = 1000
 private const val SUGGESTED_MOVE_ANIM_DELAY_TIME: Long = 1500
 
 object Controller : IController {
