@@ -38,7 +38,7 @@ class MovesTrackingFragment : Fragment(), IMovesTrackingView {
         model.inflateMovesTracking(this.requireContext())
 
         val recyclerViewObserver = Observer<RecyclerView> { recyclerView ->
-            binding.recyclerView.layoutManager = recyclerView.layoutManager
+            binding.recyclerView.layoutManager = LinearLayoutManager(this.requireContext())
             model.addItemDecoration(this.requireContext(), DividerItemDecoration.VERTICAL)
             binding.recyclerView.adapter = recyclerView.adapter
         }

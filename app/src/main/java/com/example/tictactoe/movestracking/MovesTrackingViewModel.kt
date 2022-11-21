@@ -22,7 +22,6 @@ class MovesTrackingViewModel : ViewModel() {
     fun inflateMovesTracking(context: Context) {
         val recyclerView = RecyclerView(context)
         recyclerView.adapter = RecyclerAdapter(getListOfActionsFromController())
-        recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerViewMutableLiveData.postValue(
             recyclerView
         )
