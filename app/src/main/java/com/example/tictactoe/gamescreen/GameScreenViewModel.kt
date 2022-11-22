@@ -144,7 +144,6 @@ class GameScreenViewModel() : ViewModel() {
 
         // update the UI
         updateCellInBoardAfterPlayerPlayed()
-        updateCurrentTurnImg(getLatestCurrentTurnImgFromController())
 
         // Prep Game State For Database and insert it
         viewModelScope.launch {
@@ -164,11 +163,9 @@ class GameScreenViewModel() : ViewModel() {
                 return
             }
         }
-
         // Agent turn
-        updateLockScreen(true)
         CoroutineScope(Main).launch {
-
+            updateCurrentTurnImg(getLatestCurrentTurnImgFromController())
             updateProgressBarVisibility(View.VISIBLE)
 
             // wait second
@@ -177,10 +174,13 @@ class GameScreenViewModel() : ViewModel() {
             // agent make a move
             playAgentFromController()
             updateCellInBoardAfterAiPlayed()
-            updateAgentMakeMoveToController()
+            //updateAgentMakeMoveToController()
             updateProgressBarVisibility(View.INVISIBLE)
+
+            updateLockScreen(false)
+            updateCurrentTurnImg(getLatestCurrentTurnImgFromController())
         }
-        updateCurrentTurnImg(getLatestCurrentTurnImgFromController())
+
 
         // Prep Game State For Database and insert it
         viewModelScope.launch {
@@ -456,7 +456,7 @@ class GameScreenViewModel() : ViewModel() {
     /** ****************************************************************************************************************************/
 
 
-    private fun clearSuggestMoveCoordinatesAndColor(){
+    private fun clearSuggestMoveCoordinatesAndColor() {
         Log.i(TAG, "Clearing Suggest Move Coordinates and color ")
         gameScreenUIState = GameScreenUIState(
             currentTurnImg = gameScreenUIState.currentTurnImg,
@@ -470,9 +470,11 @@ class GameScreenViewModel() : ViewModel() {
         gameScreenUIStateMutableData.postValue(gameScreenUIState)
     }
 
-    fun updateSuggestMoveCoordinatesAndColor(row: Int, col: Int, color: Int){
-        Log.i(TAG, "Updating Suggest Move Coordinates and color with: " +
-                "row: $row, col: $col, color: $color")
+    fun updateSuggestMoveCoordinatesAndColor(row: Int, col: Int, color: Int) {
+        Log.i(
+            TAG, "Updating Suggest Move Coordinates and color with: " +
+                    "row: $row, col: $col, color: $color"
+        )
         gameScreenUIState = GameScreenUIState(
             currentTurnImg = gameScreenUIState.currentTurnImg,
             board = Board(
@@ -500,8 +502,10 @@ class GameScreenViewModel() : ViewModel() {
     }
 
     fun updateCellInBoard(row: Int, col: Int, imgId: Int) {
-        Log.i(TAG, "updating Cell in Board with: " +
-                "row: $row, col: $col, imgId: $imgId")
+        Log.i(
+            TAG, "updating Cell in Board with: " +
+                    "row: $row, col: $col, imgId: $imgId"
+        )
         val board = Board(
             boardImg = kotlin.run {
                 Array(3) { r ->
@@ -624,7 +628,7 @@ class GameScreenViewModel() : ViewModel() {
         }
 
         override fun toString(): String {
-            var str: String = ""
+            var str = ""
             this.boardImg.forEach { row ->
                 row.forEach { cell ->
                     str += cell.toString()

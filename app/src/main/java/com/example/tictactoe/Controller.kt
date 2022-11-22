@@ -422,8 +422,8 @@ object Controller : IController {
             gameState = controllerData.gameState,
             gridLayoutImgId = controllerData.gridLayoutImgId,
             winnerState = controllerData.winnerState,
-            playerPlayedMove = agentPlayedMove,
-            agentPlayedMove = controllerData.agentPlayedMove,
+            playerPlayedMove = controllerData.playerPlayedMove,
+            agentPlayedMove = agentPlayedMove,
             currentTurnImg = controllerData.currentTurnImg
         )
     }
@@ -466,7 +466,7 @@ object Controller : IController {
         gameState = gameState.updateGameState()
 
         // set turn img
-        updateCurrentTurnImg(CellTypeImg.CIRCLE_BLACK.id)
+        updateCurrentTurnImg(CellTypeImg.CROSS_BLACK.id)
         // set grid cell img
         updateAgentPlayedMove(arrayListOf(row, col, imgId))
 
@@ -492,7 +492,7 @@ object Controller : IController {
         gameState.listOfMoves.add(Pair(row,col))
         gameState = gameState.updateGameState()
         updatePlayerPlayedMove(arrayListOf(row, col, imgId))
-        updatePlayerPlayedMove(arrayListOf(row, col, imgId))
+        //updatePlayerPlayedMove(arrayListOf(row, col, imgId))
 
         // set cell img in the grid layout
         updateCellImg(row, col, imgId)

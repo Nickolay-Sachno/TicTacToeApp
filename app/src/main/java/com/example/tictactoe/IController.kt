@@ -22,7 +22,7 @@ interface IController {
     fun isOnline(context: Context) : Boolean
     fun updateCurrentTurnImg(gameStateCurrentTurnImg: Int)
     fun updateGameState(gameState: GameState)
-    fun updateGameType(playerVsPlayer: GameType)
+    fun updateGameType(gameType: GameType)
     fun updateWinnerState(winnerState: ArrayList<Triple<Int, Int, Int>>)
     fun updateAgentPlayedMove(agentPlayedMove: ArrayList<Int>)
     fun clearControllerData()
