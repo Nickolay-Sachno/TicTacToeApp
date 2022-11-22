@@ -20,6 +20,7 @@ import com.example.tictactoe.database.GameStateDatabaseDao
 import com.example.tictactoe.enum.GameType
 import com.example.tictactoe.networking.RestClient
 import com.example.tictactoe.networking.Result
+import com.example.tictactoe.repository.GameStateDatabaseRepository
 import com.example.tictactoe.settings.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
@@ -36,6 +37,7 @@ private const val TAG: String = "GAME SCREEN VIEW MODEL"
 class GameScreenViewModel() : ViewModel() {
 
     lateinit var database: GameStateDatabaseDao
+    lateinit var repository: GameStateDatabaseRepository
     private var gameScreenUIState: GameScreenUIState = GameScreenUIState(
         currentTurnImg = Controller.controllerData.currentTurnImg,
         board = Board(Controller.controllerData.gridLayoutImgId),
@@ -157,7 +159,7 @@ class GameScreenViewModel() : ViewModel() {
                 clearDataFromControllerData()
 
                 viewModelScope.launch {
-                    database.clear()
+                    repository.clear()
                 }
                 return
             }
@@ -219,7 +221,7 @@ class GameScreenViewModel() : ViewModel() {
             clearDataFromControllerData()
 
             viewModelScope.launch {
-                database.clear()
+                repository.clear()
             }
             return
         }
@@ -240,7 +242,7 @@ class GameScreenViewModel() : ViewModel() {
     }
 
     suspend fun insertDataToDatabase(gameStateBridge: GameStateBridge) {
-        database.insert(
+        repository.insert(
             GameStateData(
                 currentTurn = getLatestCurrentTurnCellTypeNameFromController(),
                 gameState = Controller.fromGameStateBridgeToString(gameStateBridge)

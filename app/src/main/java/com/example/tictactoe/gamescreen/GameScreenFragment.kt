@@ -13,6 +13,7 @@ import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.database.GameStateDatabase
 import com.example.tictactoe.databinding.FragmentGameScreenBinding
+import com.example.tictactoe.repository.GameStateDatabaseRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -37,6 +38,8 @@ class GameScreenFragment : Fragment(), IGameScreenView {
 
         // init the database
         viewModel.database = GameStateDatabase.getInstance(requireNotNull(this.activity).application)!!.gameStateDatabaseDao
+        // init the repository
+        viewModel.repository = GameStateDatabaseRepository(viewModel.database)
         // inform the controller about the current fragment
         Controller.setFragment(this)
 

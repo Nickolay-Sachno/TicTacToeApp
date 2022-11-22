@@ -6,6 +6,7 @@ import androidx.lifecycle.*
 import com.example.tictactoe.Controller
 import com.example.tictactoe.database.GameStateDatabaseDao
 import com.example.tictactoe.enum.GameType
+import com.example.tictactoe.repository.GameStateDatabaseRepository
 import com.example.tictactoe.settings.CellTypeImg
 import com.example.tictactoe.utils.Utils
 import kotlinx.coroutines.*
@@ -14,6 +15,7 @@ import java.lang.IllegalArgumentException
 class WelcomeScreenViewModel() : ViewModel() {
 
     lateinit var database: GameStateDatabaseDao
+    lateinit var repository: GameStateDatabaseRepository
     var welcomeScreenUiState: WelcomeScreenUiState = WelcomeScreenUiState()
 
     val welcomeScreenUiStateMutableLiveData: MutableLiveData<WelcomeScreenUiState> by lazy {
@@ -23,7 +25,7 @@ class WelcomeScreenViewModel() : ViewModel() {
     /** Called every onCreate() in the fragment */
     fun inflateWelcomeScreenFragment() {
         viewModelScope.launch {
-            if (database.getAllGameStates().isNotEmpty()) {
+            if (repository.getAllGameStates().isNotEmpty()) {
                 welcomeScreenUiStateMutableLiveData.postValue(
                     WelcomeScreenUiState(
                         restoreGameVisibility = View.VISIBLE
@@ -95,7 +97,7 @@ class WelcomeScreenViewModel() : ViewModel() {
     private suspend fun getCurrentTurnIngFromDatabase(): Int {
         var gameStateCurrentTurnImg = 0
         viewModelScope.launch {
-            gameStateCurrentTurnImg = when (database.getLatestGameState().currentTurn) {
+            gameStateCurrentTurnImg = when (repository.getLatestGameState().currentTurn) {
                 CellType.CROSS.name -> CellTypeImg.CROSS_BLACK.id
                 CellType.CIRCLE.name -> CellTypeImg.CIRCLE_BLACK.id
                 else -> throw IllegalArgumentException()
@@ -107,7 +109,7 @@ class WelcomeScreenViewModel() : ViewModel() {
     private suspend fun getGameStateFromDatabase(): GameState {
         var gameState: GameState = Controller.controllerData.gameState
         viewModelScope.launch {
-            val gameStateBridgeString = database.getLatestGameState().gameState
+            val gameStateBridgeString = repository.getLatestGameState().gameState
             val gameStateBridge = Utils.fromStringToGameStateBridge(gameStateBridgeString)
             gameState = gameStateBridge.getGameStateBridgeFromGameState()
         }.join()
@@ -118,7 +120,7 @@ class WelcomeScreenViewModel() : ViewModel() {
 
     private fun clearDatabase() {
         viewModelScope.launch {
-            database.clear()
+            repository.clear()
         }
     }
 

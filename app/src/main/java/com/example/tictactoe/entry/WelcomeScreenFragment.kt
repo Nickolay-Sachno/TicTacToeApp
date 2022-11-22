@@ -14,6 +14,7 @@ import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.database.GameStateDatabase
 import com.example.tictactoe.databinding.FragmentEntryBinding
+import com.example.tictactoe.repository.GameStateDatabaseRepository
 
 class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
 
@@ -30,7 +31,8 @@ class WelcomeScreenFragment : Fragment(), IWelcomeScreenView {
         // init the database
         model.database =
             GameStateDatabase.getInstance(requireNotNull(this.activity).application)!!.gameStateDatabaseDao
-
+        // init repository
+        model.repository = GameStateDatabaseRepository(model.database)
         // inflate the Fragment from View Model
         model.inflateWelcomeScreenFragment()
         // init Observer
