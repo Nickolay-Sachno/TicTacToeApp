@@ -5,14 +5,17 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.work.ListenableWorker
 import com.example.tictactoe.Controller
 import com.example.tictactoe.R
 import com.example.tictactoe.database.GameStateDatabase
 import com.example.tictactoe.databinding.FragmentGameScreenBinding
+import com.example.tictactoe.notification.BackToGameNotification
 import com.example.tictactoe.repository.GameStateDatabaseRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -52,7 +55,26 @@ class GameScreenFragment : Fragment(), IGameScreenView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.fragment = this
-
+//        val sharedPref = context!!.getSharedPreferences("", AppCompatActivity.MODE_PRIVATE)
+//        val defaultValue = "currentWorkerRetry"
+//        val numbersOfRetries = sharedPref.getInt(defaultValue, AppCompatActivity.MODE_PRIVATE)
+//        Log.i("GameScreenFragment", "number of retries from shared pref: $numbersOfRetries")
+//        // the game is unfinished
+//        if (numbersOfRetries < 3) {
+//            // Pop-up the notification
+//            val notification = BackToGameNotification(context!!)
+//            notification.createNotification(1)
+//            with(sharedPref.edit()) {
+//                putInt("currentWorkerRetry", numbersOfRetries + 1)
+//                apply()
+//            }
+//        } else {
+//            // No active game in database
+//            with(sharedPref.edit()){
+//                putInt("currentWorkerRetry", 0)
+//                apply()
+//            }
+//        }
     }
 
     fun onGridCellSelected(row: Int, col: Int) {

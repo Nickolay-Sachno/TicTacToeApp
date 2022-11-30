@@ -13,7 +13,7 @@ class Grid(
 ) {
 
     override fun toString(): String {
-        var temp : String = ""
+        var temp = ""
         for( i in matrix.indices){
             for(j in matrix[0].indices){
                 temp += "${matrix[i][j].toString()} "
@@ -26,7 +26,7 @@ class Grid(
     fun deepCopy() : Grid{
         val grid = Grid(this.dim)
         grid.matrix.forEachIndexed { row, arrayOfCells ->
-            arrayOfCells.forEachIndexed { column, cell ->
+            arrayOfCells.forEachIndexed { column, _ ->
                 grid.matrix[row][column] = this.matrix[row][column].deepCopy()
             }
         }
@@ -43,7 +43,7 @@ class Grid(
 
     fun fillRandomGrid() : Grid{
         val listOfMoves = listOf<CellType>(CellType.CIRCLE, CellType.CROSS)
-        var grid = this.deepCopy()
+        val grid = this.deepCopy()
         for(i in 0 until dim){
             for(j in 0 until dim){
                 var temp = Random.nextInt(listOfMoves.size)
@@ -55,10 +55,10 @@ class Grid(
 
     fun fillRandomGridWithSpaces() : Grid{
         val listOfMoves = listOf<CellType>(CellType.CIRCLE, CellType.CROSS, CellType.EMPTY)
-        var grid = this.deepCopy()
+        val grid = this.deepCopy()
         for(i in 0 until dim){
             for(j in 0 until dim){
-                var temp = Random.nextInt(listOfMoves.size)
+                val temp = Random.nextInt(listOfMoves.size)
                 grid.matrix[i][j].content = listOfMoves[temp]
             }
         }
@@ -66,7 +66,7 @@ class Grid(
     }
 
     fun gridToCharMatrix() : Array<CharArray>{
-        var charArr = Array(dim) { CharArray(dim) }
+        val charArr = Array(dim) { CharArray(dim) }
         for(i in 0 until dim){
             for(j in 0 until dim){
                 charArr[i][j] = this.matrix[i][j].content.chr.lowercaseChar()
