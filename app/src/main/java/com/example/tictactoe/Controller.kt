@@ -124,8 +124,8 @@ object Controller : IController {
             listOfMoves = mutableListOf()
         ))
         updateGridLayoutImgId(kotlin.run {
-            Array(3) { r ->
-                Array(3) { c ->
+            Array(3) {
+                Array(3) {
                     0
                 }
             }
@@ -603,8 +603,8 @@ data class ControllerData(
     ),
     // var for recreating the Game Screen Fragment
     val gridLayoutImgId: Array<Array<Int>> = kotlin.run {
-        Array(3) { row ->
-            Array(3) { col ->
+        Array(3) {
+            Array(3) {
                 0
             }
         }
